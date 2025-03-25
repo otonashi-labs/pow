@@ -33,6 +33,8 @@ class Mode {
 		static Mode numbers();
 		static Mode doubles();
 
+		static Mode magicXor(const std::string strDifficulty);
+
 		std::string name;
 
 		std::string kernel;

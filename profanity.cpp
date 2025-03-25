@@ -170,6 +170,7 @@ int main(int argc, char * * argv) {
 		size_t inverseSize = 255;
 		size_t inverseMultiple = 16384;
 		bool bMineContract = false;
+		std::string strMagicXorDifficulty;
 
 		argp.addSwitch('h', "help", bHelp);
 		argp.addSwitch('0', "benchmark", bModeBenchmark);
@@ -193,6 +194,7 @@ int main(int argc, char * * argv) {
 		argp.addSwitch('c', "contract", bMineContract);
 		argp.addSwitch('z', "publicKey", strPublicKey);
 		argp.addSwitch('b', "zero-bytes", bModeZeroBytes);
+		argp.addSwitch('X', "magic-xor", strMagicXorDifficulty);
 
 		if (!argp.parse()) {
 			std::cout << "error: bad arguments, try again :<" << std::endl;
@@ -227,6 +229,8 @@ int main(int argc, char * * argv) {
 			mode = Mode::doubles();
 		} else if (bModeZeroBytes) {
 			mode = Mode::zeroBytes();
+		} else if (!strMagicXorDifficulty.empty()) {
+			mode = Mode::magicXor(strMagicXorDifficulty);
 		} else {
 			std::cout << g_strHelp << std::endl;
 			return 0;

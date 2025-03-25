@@ -147,3 +147,28 @@ Mode Mode::doubles() {
 	r.kernel = "profanity_score_doubles";
 	return r;
 }
+
+Mode Mode::magicXor(const std::string strDifficulty) {
+    Mode r;
+    r.name = "magicxor";
+    r.kernel = "profanity_score_magicxor";
+
+    // Magic bytes (0x88 repeated)
+    std::fill(r.data1, r.data1 + 20, 0x88);
+
+    // Parse difficulty (40 hex chars = 20 bytes)
+    if (strDifficulty.length() != 40) {
+        throw std::runtime_error("Difficulty must be 40 hex characters (20 bytes)");
+    }
+
+    for (int i = 0; i < 20; ++i) {
+        const size_t pos = i * 2;
+        const char c_hi = strDifficulty[pos];
+        const char c_lo = strDifficulty[pos + 1];
+        const auto val_hi = hexValue(c_hi);
+        const auto val_lo = hexValue(c_lo);
+        r.data2[i] = static_cast<cl_uchar>((val_hi << 4) | val_lo);
+    }
+
+    return r;
+}

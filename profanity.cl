@@ -869,3 +869,31 @@ __kernel void profanity_score_doubles(__global mp_number * const pInverse, __glo
 
 	profanity_result_update(id, hash, pResult, score, scoreMax);
 }
+
+
+__kernel void profanity_score_magicxor(__global mp_number * const pInverse, __global result * const pResult, __constant const uchar * const data1, __constant const uchar * const data2, const uchar scoreMax) {
+    const size_t id = get_global_id(0);
+    __global const uchar * const hash = pInverse[id].d;
+    int score = 0;
+
+    uchar xor_result[20];
+    for (int i = 0; i < 20; ++i) {
+        xor_result[i] = hash[i] ^ data1[i];
+    }
+
+    bool is_less = true;
+    for (int i = 0; i < 20; ++i) {
+        if (xor_result[i] < data2[i]) {
+            break;
+        } else if (xor_result[i] > data2[i]) {
+            is_less = false;
+            break;
+        }
+    }
+
+    if (is_less) {
+        score = 1; // Valid match
+    }
+
+    profanity_result_update(id, hash, pResult, score, scoreMax);
+}
