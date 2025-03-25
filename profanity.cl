@@ -64,7 +64,6 @@ __constant const mp_number doubleNegativeGy = { {0x09de52bf, 0xc7705edf, 0xb2f55
 // negativeGy       = 0xb7c52588d95c3b9aa25b0403f1eef75702e84bb7597aabe663b82f6f04ef2777
 __constant const mp_number negativeGy       = { {0x04ef2777, 0x63b82f6f, 0x597aabe6, 0x02e84bb7, 0xf1eef757, 0xa25b0403, 0xd95c3b9a, 0xb7c52588 } };
 
-
 // Multiprecision subtraction. Underflow signalled via return value.
 mp_word mp_sub(mp_number * const r, const mp_number * const a, const mp_number * const b) {
 	mp_word t, c = 0;

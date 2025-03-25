@@ -434,27 +434,29 @@ void Dispatcher::dispatch(Device & d) {
 }
 
 void Dispatcher::handleResult(Device & d) {
-	for (auto i = PROFANITY_MAX_SCORE; i > m_clScoreMax; --i) {
-		result & r = d.m_memResult[i];
+    for (auto i = PROFANITY_MAX_SCORE; i > 0; --i) { // Changed from i > m_clScoreMax to i > 0
+        result & r = d.m_memResult[i];
 
-		if (r.found > 0 && i >= d.m_clScoreMax) {
-			d.m_clScoreMax = i;
-			CLMemory<cl_uchar>::setKernelArg(d.m_kernelScore, 4, d.m_clScoreMax);
+        if (r.found > 0) {
+            d.m_clScoreMax = i;
+            CLMemory<cl_uchar>::setKernelArg(d.m_kernelScore, 4, d.m_clScoreMax);
 
-			std::lock_guard<std::mutex> lock(m_mutex);
-			if (i >= m_clScoreMax) {
-				m_clScoreMax = i;
+            std::lock_guard<std::mutex> lock(m_mutex);
+            m_clScoreMax = i;
+            
+            // For magicxor, we want to stop on the first occurrence
+            if (m_mode.kernel == "profanity_score_magicxor" && i > 0) {
+                m_quit = true;
+            }
 
-				if (m_clScoreQuit && i >= m_clScoreQuit) {
-					m_quit = true;
-				}
+            if (m_clScoreQuit && i >= m_clScoreQuit) {
+                m_quit = true;
+            }
 
-				printResult(d.m_clSeed, d.m_round, r, i, timeStart, m_mode);
-			}
-
-			break;
-		}
-	}
+            printResult(d.m_clSeed, d.m_round, r, i, timeStart, m_mode);
+            break;
+        }
+    }
 }
 
 void Dispatcher::onEvent(cl_event event, cl_int status, Device & d) {
