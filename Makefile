@@ -1,8 +1,8 @@
 CC = g++
 
 # Include paths
-CDEFINES = -I/opt/homebrew/lib/python3.11/site-packages/pybind11/include
-CDEFINES += -I/opt/homebrew/opt/python@3.11/Frameworks/Python.framework/Versions/3.11/include/python3.11
+CDEFINES = -I/usr/include/python3.11
+CDEFINES += -I/usr/local/lib/python3.11/dist-packages/pybind11/include
 # Note: You had this include path twice; one is enough unless you have a specific reason
 
 # Source files
@@ -14,21 +14,11 @@ PYMODULE = magicXorMiner.so
 
 # Detect OS
 UNAME_S := $(shell uname -s)
-ifeq ($(UNAME_S),Darwin)
-    # Linker flags for macOS
-    LDFLAGS = -framework OpenCL \
-              -L/opt/homebrew/opt/python@3.11/Frameworks/Python.framework/Versions/3.11/lib \
-              -lpython3.11 \
-              -ldl \
-              -framework CoreFoundation
-    # Compiler flags
-    CFLAGS = -c -std=c++11 -Wall -O2 -fPIC
-else
-    # Linker flags for Linux (adjust as needed)
-    LDFLAGS = -s -lOpenCL -mcmodel=large
-    # Compiler flags for Linux
-    CFLAGS = -c -std=c++11 -Wall -O2 -mcmodel=large -fPIC
-endif
+
+# Linker flags for Linux (adjust as needed)
+LDFLAGS = -shared -lOpenCL
+# Compiler flags for Linux
+CFLAGS = -c -std=c++11 -Wall -O2 -fPIC
 
 # Default target
 all: $(PYMODULE)
