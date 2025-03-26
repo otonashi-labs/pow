@@ -446,9 +446,20 @@ void Dispatcher::handleResult(Device & d) {
             
             // For magicxor, we want to stop on the first occurrence and store result in Dispatcher
             if (m_mode.kernel == "profanity_score_magicxor" && i > 0) {
+				// Format private key and store it inside Dispatcher.m_magicxorFound
+				cl_ulong carry = 0;
+				cl_ulong4 seedRes;
+				cl_ulong4 seed = d.m_clSeed;
+				cl_ulong round = d.m_round;
+
+				seedRes.s[0] = seed.s[0] + round; carry = seedRes.s[0] < round;
+				seedRes.s[1] = seed.s[1] + carry; carry = !seedRes.s[1];
+				seedRes.s[2] = seed.s[2] + carry; carry = !seedRes.s[2];
+				seedRes.s[3] = seed.s[3] + carry + r.foundId;
+
 				std::ostringstream ss;
-				ss << std::hex;
-				for (int j = 0; j < 20; ++j) ss << std::setw(2) << std::setfill('0') << (int)r.foundHash[j];
+				ss << std::hex << std::setfill('0');
+				ss << std::setw(16) << seedRes.s[3] << std::setw(16) << seedRes.s[2] << std::setw(16) << seedRes.s[1] << std::setw(16) << seedRes.s[0];
 				m_magicxorFound = ss.str();
 				m_quit = true;
 				// break;

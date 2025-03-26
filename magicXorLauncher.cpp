@@ -1,4 +1,3 @@
-// #include "magicXorLauncher.hpp"
 #include "profanity.cpp"
 
 // runMagicXor() – a function that directly takes all necessary inputs and, after running the custom “magicxor” kernel (and all other necessary

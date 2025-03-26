@@ -17,7 +17,7 @@ PYBIND11_MODULE(magicXorMiner, m) {
           py::arg("worksizeLocal") = 64,
           py::arg("worksizeMax") = 0,
           py::arg("inverseSize") = 255,
-          py::arg("inverseMultiple") = 16384,
+          py::arg("inverseMultiple") = 1024,
           py::arg("bNoCache") = false,
           py::arg("vDeviceSkipIndex") = std::vector<size_t>(),
           "Executes the custom magicxor kernel and returns the magicxor result string");
