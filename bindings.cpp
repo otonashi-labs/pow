@@ -7,7 +7,6 @@
 namespace py = pybind11;
 
 PYBIND11_MODULE(magicXorMiner, m) {
-    std::cout << "Initializing profanity2 module" << std::endl;
     m.doc() = "Python binding for the profanity2 magicxor mode";
     
     m.def("runMagicXor", &runMagicXor,
@@ -20,5 +19,6 @@ PYBIND11_MODULE(magicXorMiner, m) {
           py::arg("inverseMultiple") = 1024,
           py::arg("bNoCache") = false,
           py::arg("vDeviceSkipIndex") = std::vector<size_t>(),
+          py::arg("verboseStdOut") = false,
           "Executes the custom magicxor kernel and returns the magicxor result string");
 }

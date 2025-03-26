@@ -13,7 +13,7 @@
 //   inverseMultiple   : (Optional) Number of work items in parallel (default: 16384)
 //   noCache           : (Optional) disable binary caching (default: false)
 //   deviceSkipIndices : (Optional) indices of devices to skip (default: empty vector)
-//
+// TODO: update to skip some text output
 std::string runMagicXor(
     const std::string & strPublicKey,
     const std::string & strMagicXorDifficulty,
@@ -23,7 +23,8 @@ std::string runMagicXor(
     size_t inverseSize = 255,
     size_t inverseMultiple = 1024,
     bool bNoCache = false,
-    const std::vector<size_t> & vDeviceSkipIndex = std::vector<size_t>()
+    const std::vector<size_t> & vDeviceSkipIndex = std::vector<size_t>(),
+    bool verboseStdOut = false
 ){
     const std::string retFailStatus = "FAIL";
 
@@ -32,17 +33,18 @@ std::string runMagicXor(
         mode.target = ADDRESS;
 
 		if (strPublicKey.length() == 0) {
-			std::cout << "error: this tool requires your public key to derive it's private key security" << std::endl;
+            if (verboseStdOut) {
+                std::cout << "error: this tool requires your public key to derive it's private key security" << std::endl;
+            }
 			return retFailStatus;
 		}
 
 		if (strPublicKey.length() != 128) {
-			std::cout << "error: public key must be 128 hexademical characters long" << std::endl;
+            if (verboseStdOut) {
+			    std::cout << "error: public key must be 128 hexademical characters long" << std::endl;
+            }
 			return retFailStatus;
 		}
-
-		std::cout << "Mode: " << mode.name << std::endl;
-		std::cout << "Target: " << mode.transformName() << std:: endl;
 
 		std::vector<cl_device_id> vFoundDevices = getAllDevices();
 		std::vector<cl_device_id> vDevices;
@@ -53,7 +55,9 @@ std::string runMagicXor(
 		cl_int errorCode;
 		bool bUsedCache = false;
 
-		std::cout << "Devices:" << std::endl;
+        if (verboseStdOut) {
+		    std::cout << "Devices:" << std::endl;
+        }
 		for (size_t i = 0; i < vFoundDevices.size(); ++i) {
 			// Ignore devices in skip index
 			if (std::find(vDeviceSkipIndex.begin(), vDeviceSkipIndex.end(), i) != vDeviceSkipIndex.end()) {
@@ -76,8 +80,9 @@ std::string runMagicXor(
 					precompiled = true;
 				}
 			}
-
-			std::cout << "  GPU" << i << ": " << strName << ", " << globalMemSize << " bytes available, " << computeUnits << " compute units (precompiled = " << (precompiled ? "yes" : "no") << ")" << std::endl;
+            if (verboseStdOut) {
+			    std::cout << "  GPU" << i << ": " << strName << ", " << globalMemSize << " bytes available, " << computeUnits << " compute units (precompiled = " << (precompiled ? "yes" : "no") << ")" << std::endl;
+            }
 			vDevices.push_back(vFoundDevices[i]);
 			mDeviceIndex[vFoundDevices[i]] = i;
 		}
@@ -86,11 +91,13 @@ std::string runMagicXor(
 			return retFailStatus;
 		}
 
-		std::cout << std::endl;
-		std::cout << "Initializing OpenCL..." << std::endl;
-		std::cout << "  Creating context..." << std::flush;
+        if (verboseStdOut) {
+            std::cout << std::endl;
+            std::cout << "Initializing OpenCL..." << std::endl;
+            std::cout << "  Creating context..." << std::flush;
+        }
 		auto clContext = clCreateContext( NULL, vDevices.size(), vDevices.data(), NULL, NULL, &errorCode);
-		if (printResult(clContext, errorCode)) {
+		if (printResult(clContext, errorCode, verboseStdOut)) {
 			return retFailStatus;
 		}
 
@@ -99,7 +106,9 @@ std::string runMagicXor(
 			// Create program from binaries
 			bUsedCache = true;
 
-			std::cout << "  Loading kernel from binary..." << std::flush;
+            if (verboseStdOut) {
+			    std::cout << "  Loading kernel from binary..." << std::flush;
+            }
 			const unsigned char * * pKernels = new const unsigned char *[vDevices.size()];
 			for (size_t i = 0; i < vDeviceBinary.size(); ++i) {
 				pKernels[i] = reinterpret_cast<const unsigned char *>(vDeviceBinary[i].data());
@@ -108,47 +117,56 @@ std::string runMagicXor(
 			cl_int * pStatus = new cl_int[vDevices.size()];
 
 			clProgram = clCreateProgramWithBinary(clContext, vDevices.size(), vDevices.data(), vDeviceBinarySize.data(), pKernels, pStatus, &errorCode);
-			if(printResult(clProgram, errorCode)) {
+			if(printResult(clProgram, errorCode, verboseStdOut)) {
 				return retFailStatus;
 			}
 		} else {
 			// Create a program from the kernel source
-			std::cout << "  Compiling kernel..." << std::flush;
+            if (verboseStdOut) {
+			    std::cout << "  Compiling kernel..." << std::flush;
+            }
 			const std::string strKeccak = readFile("keccak.cl");
 			const std::string strVanity = readFile("profanity.cl");
 			const char * szKernels[] = { strKeccak.c_str(), strVanity.c_str() };
 
 			clProgram = clCreateProgramWithSource(clContext, sizeof(szKernels) / sizeof(char *), szKernels, NULL, &errorCode);
-			if (printResult(clProgram, errorCode)) {
+			if (printResult(clProgram, errorCode, verboseStdOut)) {
 				return retFailStatus;
 			}
 		}
 
 		// Build the program
-		std::cout << "  Building program..." << std::flush;
+        if (verboseStdOut) {
+		    std::cout << "  Building program..." << std::flush;
+        }
 		const std::string strBuildOptions = "-D PROFANITY_INVERSE_SIZE=" + toString(inverseSize) + " -D PROFANITY_MAX_SCORE=" + toString(PROFANITY_MAX_SCORE);
-		if (printResult(clBuildProgram(clProgram, vDevices.size(), vDevices.data(), strBuildOptions.c_str(), NULL, NULL))) {
+		if (printResult(clBuildProgram(clProgram, vDevices.size(), vDevices.data(), strBuildOptions.c_str(), NULL, NULL), verboseStdOut)) {
 			return retFailStatus;
 		}
 
 		// Save binary to improve future start times
 		if( !bUsedCache && !bNoCache ) {
-			std::cout << "  Saving program..." << std::flush;
+            if (verboseStdOut) {
+			    std::cout << "  Saving program..." << std::flush;
+            }
 			auto binaries = getBinaries(clProgram);
 			for (size_t i = 0; i < binaries.size(); ++i) {
 				std::ofstream fileOut(getDeviceCacheFilename(vDevices[i], inverseSize), std::ios::binary);
 				fileOut.write(binaries[i].data(), binaries[i].size());
 			}
-			std::cout << "OK" << std::endl;
+            if (verboseStdOut) {
+			    std::cout << "OK" << std::endl;
+            }
 		}
-
-		std::cout << std::endl;
+        if (verboseStdOut) {
+		    std::cout << std::endl;
+        }
 
 		Dispatcher d(clContext, clProgram, mode, worksizeMax == 0 ? inverseSize * inverseMultiple : worksizeMax, inverseSize, inverseMultiple, 0, strPublicKey);
 		for (auto & i : vDevices) {
 			d.addDevice(i, worksizeLocal, mDeviceIndex[i]);
 		}
-
+        d.verboseStdOut = verboseStdOut;
 		d.run();
 		clReleaseContext(clContext);
 
@@ -156,9 +174,13 @@ std::string runMagicXor(
 		return m_magicxorFound;
 
 	} catch (std::runtime_error & e) {
-		std::cout << "std::runtime_error - " << e.what() << std::endl;
+        if (verboseStdOut) {
+		    std::cout << "std::runtime_error - " << e.what() << std::endl;
+        }
 	} catch (...) {
-		std::cout << "unknown exception occured" << std::endl;
+        if (verboseStdOut) {
+		    std::cout << "unknown exception occured" << std::endl;
+        }
 	}
 
 	return retFailStatus;

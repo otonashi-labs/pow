@@ -88,6 +88,8 @@ class Dispatcher {
 
 		std::string getMagicxorFound() const { return m_magicxorFound; }
 
+		bool verboseStdOut = false;
+
 	private:
 		void init();
 		void initBegin(Device & d);
