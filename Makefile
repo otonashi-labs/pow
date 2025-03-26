@@ -15,9 +15,10 @@ endif
 
 all: $(SOURCES) $(EXECUTABLE)
 
+
 $(EXECUTABLE): $(OBJECTS)
 	$(CC) $(OBJECTS) $(LDFLAGS) -o $@
-
+	
 .cpp.o:
 	$(CC) $(CFLAGS) $(CDEFINES) $< -o $@
 

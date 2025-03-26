@@ -86,6 +86,8 @@ class Dispatcher {
 		void addDevice(cl_device_id clDeviceId, const size_t worksizeLocal, const size_t index);
 		void run();
 
+		std::string getMagicxorFound() const { return m_magicxorFound; }
+
 	private:
 		void init();
 		void initBegin(Device & d);
@@ -131,6 +133,8 @@ class Dispatcher {
 		bool m_quit;
 		cl_ulong4 m_publicKeyX;
 		cl_ulong4 m_publicKeyY;
+
+		std::string m_magicxorFound;
 };
 
 #endif /* HPP_DISPATCHER */

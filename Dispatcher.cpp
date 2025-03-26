@@ -444,10 +444,15 @@ void Dispatcher::handleResult(Device & d) {
             std::lock_guard<std::mutex> lock(m_mutex);
             m_clScoreMax = i;
             
-            // For magicxor, we want to stop on the first occurrence
+            // For magicxor, we want to stop on the first occurrence and store result in Dispatcher
             if (m_mode.kernel == "profanity_score_magicxor" && i > 0) {
-                m_quit = true;
-            }
+				std::ostringstream ss;
+				ss << std::hex;
+				for (int j = 0; j < 20; ++j) ss << std::setw(2) << std::setfill('0') << (int)r.foundHash[j];
+				m_magicxorFound = ss.str();
+				m_quit = true;
+				// break;
+			}
 
             if (m_clScoreQuit && i >= m_clScoreQuit) {
                 m_quit = true;
@@ -490,6 +495,7 @@ void Dispatcher::onEvent(cl_event event, cl_int status, Device & d) {
 }
 
 // This is run when m_mutex is held.
+// needs to be disabled on a multiple
 void Dispatcher::printSpeed() {
 	++m_countPrint;
 	if( m_countPrint > m_vDevices.size() ) {
