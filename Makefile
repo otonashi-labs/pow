@@ -1,8 +1,8 @@
 CC = g++
 
 # Include paths
-CDEFINES = -I/usr/include/python3.11
-CDEFINES += -I/usr/local/lib/python3.11/dist-packages/pybind11/include
+CDEFINES = -I/usr/include/python3.10
+CDEFINES += -I/usr/local/lib/python3.10/dist-packages/pybind11/include
 
 # Source files
 SOURCES = Dispatcher.cpp Mode.cpp precomp.cpp SpeedSample.cpp bindings.cpp
