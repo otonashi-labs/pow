@@ -11,37 +11,27 @@ OBJECTS = $(SOURCES:.cpp=.o)
 # Name for Python shared library
 PYMODULE = magicXorMiner.so
 
-# Detect OS
-UNAME_S := $(shell uname -s)
-ifeq ($(UNAME_S),Darwin)
-    # Linker flags for macOS
-    LDFLAGS = -framework OpenCL \
+# Linker flags for macOS 
+LDFLAGS = -framework OpenCL \
               -L/opt/homebrew/opt/python@3.11/Frameworks/Python.framework/Versions/3.11/lib \
-              -lpython3.11 \
-              -ldl \
-              -framework CoreFoundation
-    # Compiler flags
-    CFLAGS = -c -std=c++11 -Wall -O2 -fPIC
-else
-    # Linker flags for Linux (adjust as needed)
-    LDFLAGS = -s -lOpenCL -mcmodel=large
-    # Compiler flags for Linux
-    CFLAGS = -c -std=c++11 -Wall -O2 -mcmodel=large -fPIC
-endif
+              -lpython3.11 
+#              -ldl \
+#              -framework CoreFoundation
 
-# Default target
+
+# Compiler flags
+CFLAGS = -c -std=c++11 -Wall -O2 -fPIC
+
+
 all: $(PYMODULE)
 
-# Link the shared library
 $(PYMODULE): $(OBJECTS)
 	$(CC) -shared $(OBJECTS) $(LDFLAGS) -o $@
 
-# Compile source files to object files
 %.o: %.cpp
 	$(CC) $(CFLAGS) $(CDEFINES) $< -o $@
 
-# Clean up
 clean:
-	rm -rf *.o $(PYMODULE)
+	rm -f *.o
 
 .PHONY: all clean
