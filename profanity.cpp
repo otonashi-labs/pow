@@ -21,9 +21,7 @@
 #define CL_DEVICE_PCI_SLOT_ID_NV 0x4009
 
 #include "Dispatcher.hpp"
-#include "ArgParser.hpp"
 #include "Mode.hpp"
-#include "help.hpp"
 
 std::string readFile(const char * const szFilename)
 {
