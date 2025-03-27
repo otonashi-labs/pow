@@ -5,7 +5,8 @@ import sha3 # pip install safe-pysha3
 
 """
     ToDo list:
-    1) ideally -- omit profanity2 text output
+    1) ideally -- omit profanity2 text output [DONE]
+    2) Now -- let's build it for the GPU
 
 """
 
