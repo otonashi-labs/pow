@@ -4,9 +4,24 @@ import sha3 # pip install safe-pysha3
 
 
 """
-    ToDo list:
-    1) ideally -- omit profanity2 text output [DONE]
-    2) Now -- let's build it for the GPU
+    Alright, the mighty GPU part is officialy done. 
+    It could run both on mac os 
+
+    AND on GPUs
+    AND EVEN ON CLUSTERS
+
+    time to build the data pipeline
+    
+    1) load state
+    2) mine
+    3) submit
+
+    ideally, while mining we will need to listen or pull for state update 
+    and on state update -- re-initialize mining 
+
+    Lets start with naive web3 aprooach 
+
+    which later will be replaced woth somewhat optimized multicalls!
 
 """
 
@@ -36,6 +51,7 @@ def get_secp256k1_pub(private_key_hex):
     public_key_hex = public_key_bytes.hex()
     return public_key_hex
 
+
 def mine_wagmi_magic_xor(
         strPublicKey,
         strMagicXorDifficulty
@@ -56,9 +72,20 @@ def mine_wagmi_magic_xor(
     return result
 
 
+def _pkey_paddding_hex(uint256_hex):
+    numba = uint256_hex[2:]
+    padd_n = 64 - len(numba)
+    return "0x" + padd_n * "0" + numba
 
-PKEY = "f5b4156dd24b33c961a681c747ef979d98d13e373061b123c7062ce9f2574a38"
-DIFF = "000000ffffffffffffffffffffffffffffffffff"
+def get_pkeys_sum(pkey_a_hex, pkey_b_hex):
+    pkey_a = int("0x" + pkey_a_hex, 16)
+    pkey_b = int("0x" + pkey_b_hex, 16)
+    pkey_full = hex((pkey_a + pkey_b) % 0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFEFFFFFC2F)
+    return _pkey_paddding_hex(pkey_full)
+
+
+PKEY = "4e88558d1e3f6e1a56c6d44bca7489b0df4a8a19a43de2c3ba478fc425a317cd"
+DIFF = "00000fffffffffffffffffffffffffffffffffff"
 
 def main():
     pub = get_secp256k1_pub(PKEY)
@@ -72,12 +99,9 @@ def main():
         print("[PROFANITY2] generation failed")
         return None
 
-    pkey_a = int("0x" + PKEY, 16)
-    pkey_b = int("0x" + pkey_generated, 16)
-    pkey_full = hex((pkey_a + pkey_b) % 0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFEFFFFFC2F)
+    pkey_full = get_pkeys_sum(PKEY, pkey_generated)
 
     print(pkey_full)
-
     print(get_secp256k1_pub(pkey_full[2:]))
 
 
