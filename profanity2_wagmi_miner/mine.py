@@ -23,10 +23,12 @@ SESSION = requests.Session()
 
 PKEY_A_SELECTOR = "0xb4ffbbc8"
 DIFF_SELECTOR = "0x19cae462"
-GAS_LIMIT_SUBMIT = 1_000_000
+GAS_LIMIT_SUBMIT = 2_000_000
 
-# be creative, pick your own data, don't make it too long though
-SIGN_DATA = bytes.fromhex("deadbeef1337cafebabe" * 2)
+# be creative, pick your own data, don't make it too long though,
+# code will compulsory fail if len(SIGN_DATA) > 32
+# so, keep that in mind
+SIGN_DATA = bytes.fromhex("deadbeef1337cafebabe")
 
 # you could optionally choose a different address for the rewards
 MASTER_ADDRESS = "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266"
@@ -37,6 +39,23 @@ REWARDS_RECIPIENT_ADDRESS = "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266"
 MAX_PRIORITY_FEE_MWEI = 500
 BASE_FEE_K = 2
 
+# Mining params section:
+# feel free to tweak this parameters until it works the best for you
+# original profanity2 params are mirrored here: https://github.com/1inch/profanity2
+"""
+Tweaking:
+    -w, --work <size>       Set OpenCL local work size. [default = 64]
+    -W, --work-max <size>   Set OpenCL maximum work size. [default = -i * -I]
+    -i, --inverse-size      Set size of modular inverses to calculate in one
+                            work item. [default = 255]
+    -I, --inverse-multiple  Set how many above work items will run in
+                            parallell. [default = 16384]
+"""
+WORKSIZE_LOCAL = 64
+WORKSIZE_MAX = 0  # 0 means default
+INVERSE_SIZE = 511
+INVERSE_MULTIPLE = 1024
+PROFANITY2_VERBOSE_FLAG = False  # do you want profanity2 working logs?
 
 
 with open("abi/POW.abi.json", "r") as f:
@@ -105,7 +124,8 @@ def get_pkeys_sum(pkey_a_hex, pkey_b_hex):
     private_key_ab_hex -- accepts both WITH and WITHOUT "0x"
 
     Works around 5ms 
-    room for improvment 
+    Much simpler to use, because it is basically a part of web3py
+    feel free to fallback to this option if optimized one doesn't work!
 """
 # def create_signature_ab(
 #         private_key_ab_hex, 
@@ -275,13 +295,13 @@ def mine_wagmi_magic_xor(
     result = magicXorMiner.runMagicXor(
         strPublicKey = strPublicKey,
         strMagicXorDifficulty = strMagicXorDifficulty, 
-        mineContract = False,
-        worksizeLocal = 64,
-        worksizeMax = 0,
-        inverseSize = 255,
-        inverseMultiple = 1024,
-        bNoCache = False,
-        verboseStdOut = True
+        mineContract = False, # I mean, we don't wanna mine contract, right?
+        worksizeLocal = WORKSIZE_LOCAL,
+        worksizeMax = WORKSIZE_MAX,
+        inverseSize = INVERSE_SIZE,
+        inverseMultiple = INVERSE_MULTIPLE,
+        bNoCache = False, # If you want to avoid using cache, for some weird reason, you can absolutely do it here
+        verboseStdOut = PROFANITY2_VERBOSE_FLAG
     )
 
     if "FAIL" in result:
@@ -459,13 +479,18 @@ def main():
     print()
     print()
 
+    chain_state["difficulty"] = "0x0000000fffffffffffffffffffffffffffffffff"
+
     pub_key_a = get_secp256k1_pub(chain_state["privateKeyA"][2:])
 
     # 2) mine the result
+    t = time.time()
     private_key_b = mine_wagmi_magic_xor(
         strPublicKey = pub_key_a,
         strMagicXorDifficulty = chain_state["difficulty"][2:]
     )
+    print(f"MINING TIME: {1000 * (time.time() - t)} ms")
+    print(chain_state["difficulty"][2:])
 
     print("MINED PKEY:")
     print(private_key_b)
