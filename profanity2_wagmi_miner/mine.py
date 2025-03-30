@@ -56,6 +56,7 @@ WORKSIZE_MAX = 0  # 0 means default
 INVERSE_SIZE = 511
 INVERSE_MULTIPLE = 1024
 PROFANITY2_VERBOSE_FLAG = False  # do you want profanity2 working logs?
+MINER_VERBOSE_FLAG = True
 
 
 with open("abi/POW.abi.json", "r") as f:
@@ -247,7 +248,7 @@ def get_essential_state_multicall_params(
 def get_essential_state_multicall(
         master_address,
         pow_address
-    ):
+    ):        
     
     multicall_params = get_essential_state_multicall_params(master_address, pow_address)
     
@@ -473,40 +474,45 @@ def broadcast_signed_txs(raw_signed_txs):
     Core logic shall also be refactored 
 
     mining shall be run pooling wise (we can get the state update by polling and jump into the new mining tak straight away)
+
+    SHallow logging - DONE
+    need time measurments though (better to be build with async logic in mind)
 """
 def main():
     # 1) load chain state
+
+    if (MINER_VERBOSE_FLAG):
+        print(f"[MINER][{time.time():.3f}] Preparing for `get_essential_state_multicall`")
+        print()
+
     chain_state = get_essential_state_multicall(
         master_address = MASTER_ADDRESS,
         pow_address = POW_CONTRACT
     )
 
-    print("CHAIN STATE:")
-    print(chain_state)
-    print()
-    print()
+    chain_state["difficulty"] = "0x0000ffffffffffffffffffffffffffffffffffff"
 
-    chain_state["difficulty"] = "0x000000ffffffffffffffffffffffffffffffffff"
+    if (MINER_VERBOSE_FLAG):
+        print(f"[MINER][{time.time():.3f}] Obtained State:")
+        print(f"[MINER] master_nonce: {chain_state['master_nonce']}")
+        print(f"[MINER] privateKeyA: {chain_state['privateKeyA']}")
+        print(f"[MINER] difficulty: {chain_state['difficulty']}")
+        print()
 
     pub_key_a = get_secp256k1_pub(chain_state["privateKeyA"][2:])
 
     # 2) mine the result
-    t = time.time()
     private_key_b = mine_wagmi_magic_xor(
         strPublicKey = pub_key_a,
         strMagicXorDifficulty = chain_state["difficulty"][2:]
     )
-    print(f"MINING TIME: {1000 * (time.time() - t)} ms")
-    print(chain_state["difficulty"][2:])
 
-    print("MINED PKEY:")
-    print(private_key_b)
-    print()
-    print()
+    if (MINER_VERBOSE_FLAG):
+        print(f"[MINER][{time.time():.3f}] Obtained privateKeyB: {private_key_b}")
+        print()
 
     # 3) submit the result
 
-    t = time.time()
     tx = build_submit_tx_fast(
         master_address = MASTER_ADDRESS,
         master_nonce = chain_state["master_nonce"],
@@ -518,11 +524,15 @@ def main():
     )
     
     signed_tx = create_raw_signed_tx(tx, MASTER_PKEY)
-    print(f"tx building + tx signing: {1000*(time.time() - t)} ms!")
-    print("SIGNED TX HASH:")
-    print(signed_tx['tx_hash'])
+
+    if (MINER_VERBOSE_FLAG):
+        print(f"[MINER][{time.time():.3f}] build and signed tx with tx_hash: {signed_tx['tx_hash']}")
+        print()
 
     broadcast_signed_txs([signed_tx])
+    if (MINER_VERBOSE_FLAG):
+        print(f"[MINER][{time.time():.3f}] BROADCASTED")
+        print()
 
 
 if __name__ == "__main__":
