@@ -467,6 +467,13 @@ def broadcast_signed_txs(raw_signed_txs):
     return response
 
 
+"""
+    well, the only thing remaining is the websockets integration in a different thread to abort mining once another miner submited the solution
+
+    Core logic shall also be refactored 
+
+    mining shall be run pooling wise (we can get the state update by polling and jump into the new mining tak straight away)
+"""
 def main():
     # 1) load chain state
     chain_state = get_essential_state_multicall(
@@ -479,7 +486,7 @@ def main():
     print()
     print()
 
-    chain_state["difficulty"] = "0x0000000fffffffffffffffffffffffffffffffff"
+    chain_state["difficulty"] = "0x000000ffffffffffffffffffffffffffffffffff"
 
     pub_key_a = get_secp256k1_pub(chain_state["privateKeyA"][2:])
 
