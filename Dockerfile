@@ -18,7 +18,12 @@ RUN apt-get update && apt-get install -y \
 RUN pip3 install \
     pybind11 \
     safe-pysha3 \
-    ecdsa
+    ecdsa \
+    web3 \
+    coincurve \
+    websocket-client \
+    websockets \
+    dotenv 
 
     # Configure OpenCL ICD for NVIDIA
 RUN mkdir -p /etc/OpenCL/vendors && \

@@ -17,19 +17,30 @@ from websocket import create_connection
 import threading
 import queue
 import math
-
+from dotenv import load_dotenv
+import os
 
 """
-    Config
+    VALUABLES!!!
 """
-WEB3_IDLE_PROVIDER = Web3()
+load_dotenv() 
+# you could optionally choose a different address for the rewards
+MASTER_ADDRESS = os.getenv("MASTER_ADDRESS")
+MASTER_PKEY = os.getenv("MASTER_PKEY")
+REWARDS_RECIPIENT_ADDRESS = os.getenv("REWARDS_RECIPIENT_ADDRESS")
 
-ALCHEMY_URL = 'http://127.0.0.1:8545'
-CHAIN_ID = 146
-POW_CONTRACT = "0x9fE46736679d2D9a65F0992F2272dE9f3c7fa6e0"
+"""
+    CONFIG & TUNING
+"""
+
+# chain specific details
+INFINITY_RPC = 'https://rpc.blaze.soniclabs.com'
+INFINITY_WS = 'wss://rpc.blaze.soniclabs.com'
+
+CHAIN_ID = 57054
+
+POW_CONTRACT = "0x8888FF459Da48e5c9883f893fc8653c8E55F8888"
 POW_NEW_PROBLEM_TOPIC0 = "0xd24ba3f407317c41a60dd7cf9f4ed40e425a44fbb60b68b9438832eba981a0c5"
-SESSION = requests.Session()
-
 PKEY_A_SELECTOR = "0xb4ffbbc8"
 DIFF_SELECTOR = "0x19cae462"
 GAS_LIMIT_SUBMIT = 2_000_000
@@ -39,19 +50,16 @@ GAS_LIMIT_SUBMIT = 2_000_000
 # so, keep that in mind
 SIGN_DATA = bytes.fromhex("deadbeef1337cafebabe")
 
-# you could optionally choose a different address for the rewards
-MASTER_ADDRESS = "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266"
-MASTER_PKEY = "0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80"
-REWARDS_RECIPIENT_ADDRESS = "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266"
-
-# feel free to tune it
+# [TX-BUILDER] feel free to tune it
 MAX_PRIORITY_FEE_MWEI = 500
 BASE_FEE_K = 2
 
-# Mining params section:
+# [MINER] Mining params section:
 # feel free to tweak this parameters until it works the best for you
 # original profanity2 params are mirrored here: https://github.com/1inch/profanity2
 """
+TOONING 
+
 Tweaking:
     -w, --work <size>       Set OpenCL local work size. [default = 64]
     -W, --work-max <size>   Set OpenCL maximum work size. [default = -i * -I]
@@ -65,16 +73,14 @@ WORKSIZE_MAX = 0  # 0 means default
 INVERSE_SIZE = 255
 INVERSE_MULTIPLE = 1024
 PROFANITY2_VERBOSE_FLAG = False  # do you want profanity2 working logs?
-MINER_VERBOSE_FLAG = True
+MINER_VERBOSE_FLAG = True # don't toggle these both to True -- they will mix, one at a time please
 
 
-"""
-    Async miner logic
 
-    think if we need mutex
-"""
 PROBLEMS_QUEUE = queue.Queue()
 POLL_RESULTS_QUEUE = queue.Queue()
+WEB3_IDLE_PROVIDER = Web3()
+SESSION = requests.Session()
 
 
 
@@ -267,7 +273,7 @@ def get_essential_state_multicall(
     multicall_params = get_essential_state_multicall_params(master_address, pow_address)
     
     result = SESSION.post(
-        url = ALCHEMY_URL,
+        url = INFINITY_RPC,
         json = multicall_params
     )
     
@@ -478,11 +484,9 @@ def broadcast_signed_txs(raw_signed_txs):
         multicall_body.append(signed_tx_to_call(us_tx))
 
     response = SESSION.post(
-        url = ALCHEMY_URL,
+        url = INFINITY_RPC,
         json = multicall_body
     )
-
-    print(response.text)
 
     return response
 
@@ -494,7 +498,7 @@ def mine_and_submit(el_problemo, chain_data_latest):
     1) Perform GPU-based mine_wagmi_magic_xor(...)  
     2) Submit transaction.  
     """
-    if True:
+    try:
         if (MINER_VERBOSE_FLAG):
             print(f"[MINER][{time.time():.3f}] STARTED for pkeyA: {el_problemo['privateKeyA']}")
 
@@ -527,9 +531,8 @@ def mine_and_submit(el_problemo, chain_data_latest):
             print(f"[MINER][{time.time():.3f}] BROADCASTED")
             print()
 
-    else:# Exception as e:
+    except Exception as e:
         print("[MINER] Exception in miner process:", e)
-
 
 
 """
@@ -640,6 +643,9 @@ def poll_state_periodically(poll_interval=0.5):
     all in non-blocking manner
 
     latest nonce & eth_feeHistory are passed to mine_and_submit through the multiprocessing.Manager()
+
+    TODO:
+        Consired restarting logic if miner is dead
 """
 def main_loop():
 
@@ -692,7 +698,14 @@ def main_loop():
                     last_problem["privateKeyA"] = last_poll_data["privateKeyA"]
                 else:
                     last_poll_data["privateKeyA"] = last_problem["privateKeyA"]
-        
+
+        """
+            Check on our mate - miner
+        """
+        if current_miner_process and not current_miner_process.is_alive():
+            pkey_in_work = None  
+            if MINER_VERBOSE_FLAG:
+                print(f"[MAIN-LOOP][{time.time():.3f}] MINER BROSKIII HAS DIEEDDD")
 
         if ((last_poll_data and last_problem) and (actually_latest_pkey != pkey_in_work)):
             if (MINER_VERBOSE_FLAG):
@@ -732,13 +745,12 @@ def main_loop():
     3) main loop managing them all (and launching miner)
 """
 if __name__ == "__main__":
-    NODE_WS = "ws://localhost:8545"
     CONTRACT_ADDR = POW_CONTRACT
     EVENT_TOPIC   = POW_NEW_PROBLEM_TOPIC0
 
     ws_thread = threading.Thread(
         target=listen_for_problems,
-        args=(NODE_WS, POW_CONTRACT, POW_NEW_PROBLEM_TOPIC0),
+        args=(INFINITY_WS, POW_CONTRACT, POW_NEW_PROBLEM_TOPIC0),
         daemon=True
     )
     ws_thread.start()
