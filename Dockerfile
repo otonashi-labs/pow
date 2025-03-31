@@ -12,7 +12,8 @@ RUN apt-get update && apt-get install -y \
     curl \
     python3 \
     python3-pip \
-    clinfo 
+    clinfo \
+    nano
 
 # Install Python packages for Python 3.10
 RUN pip3 install \
