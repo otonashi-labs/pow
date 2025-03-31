@@ -534,6 +534,10 @@ def mine_and_submit(el_problemo, chain_data_latest):
 
 """
     [WS-LISTENER]
+
+    Just listens for new events
+    decodes 
+    and puts them in a queue
 """
 def listen_for_problems(ws_url, contract_address, event_topic):
     ws = create_connection(ws_url)
@@ -552,8 +556,8 @@ def listen_for_problems(ws_url, contract_address, event_topic):
     ws.send(json.dumps(subscription_request))
 
     sub_reply = ws.recv()
-    
-    print(f"[WS-LISTENER][{time.time():.3f}] Subscribed. Reply: {sub_reply}")
+    if (MINER_VERBOSE_FLAG):
+        print(f"[WS-LISTENER][{time.time():.3f}] Subscribed. Reply: {sub_reply}")
 
     while True:
         raw_message = ws.recv() 
@@ -575,10 +579,11 @@ def listen_for_problems(ws_url, contract_address, event_topic):
         difficulty_hex = "0x" + format(difficulty_uint, "040x")
         privateKeyA_hex = "0x" + format(pkA_uint160, "x")
 
-        print(f"[WS-LISTENER][{time.time():.3f}] NewProblem Detected")
-        print(f"[WS-LISTENER] difficulty: {difficulty_hex}")
-        print(f"[WS-LISTENER] privateKeyA_hex: {privateKeyA_hex}")
-        print()
+        if (MINER_VERBOSE_FLAG):
+            print(f"[WS-LISTENER][{time.time():.3f}] NewProblem Detected")
+            print(f"[WS-LISTENER] difficulty: {difficulty_hex}")
+            print(f"[WS-LISTENER] privateKeyA_hex: {privateKeyA_hex}")
+            print()
 
         new_problem = {
             "difficulty": difficulty_hex,
@@ -625,7 +630,17 @@ def poll_state_periodically(poll_interval=0.5):
         sleep_to_next_multiple(poll_interval)
 
 
+"""
+    Main Loop
+    Every 5ms:
+    1) checks polling updates 
+    2) checks ws updates
+    3) launches / restarts miner on new task
 
+    all in non-blocking manner
+
+    latest nonce & eth_feeHistory are passed to mine_and_submit through the multiprocessing.Manager()
+"""
 def main_loop():
 
     manager = multiprocessing.Manager()
@@ -685,11 +700,9 @@ def main_loop():
                 print(f"[MAIN-LOOP] diff: {last_problem['difficulty']}")
                 print(f"[MAIN-LOOP] pkey: {actually_latest_pkey}")
 
-
             el_problemo = {
                 "privateKeyA":    actually_latest_pkey,
-                "difficulty":     last_problem["difficulty"],
-                "difficulty" : "0x000000ffffffffffffffffffffffffffffffffff"
+                "difficulty":     last_problem["difficulty"]
             }
 
             if current_miner_process and current_miner_process.is_alive():
@@ -712,12 +725,17 @@ def main_loop():
         sleep_to_next_multiple(0.005)
         
 
+"""
+    Launch:
+    1) websockets thread
+    2) polling thread
+    3) main loop managing them all (and launching miner)
+"""
 if __name__ == "__main__":
     NODE_WS = "ws://localhost:8545"
     CONTRACT_ADDR = POW_CONTRACT
     EVENT_TOPIC   = POW_NEW_PROBLEM_TOPIC0
 
-    # 1) Start the WebSocket listener (thread)
     ws_thread = threading.Thread(
         target=listen_for_problems,
         args=(NODE_WS, POW_CONTRACT, POW_NEW_PROBLEM_TOPIC0),
@@ -725,7 +743,6 @@ if __name__ == "__main__":
     )
     ws_thread.start()
 
-    # 2) Start the poller (thread OR process)
     poll_thread = threading.Thread(
         target=poll_state_periodically,
         args=(0.5,),  # poll every 0.5s
@@ -733,7 +750,6 @@ if __name__ == "__main__":
     )
     poll_thread.start()
 
-    # 3) Now run the main loop (this never returns)
     main_loop()
 
 
