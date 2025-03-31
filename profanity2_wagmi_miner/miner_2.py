@@ -9,9 +9,13 @@ import sha3 # pip install safe-pysha3
 import time
 import coincurve
 from eth_account.messages import defunct_hash_message
-import asyncio
+import multiprocessing
 import random
 import copy
+from eth_abi import decode  
+from websocket import create_connection  
+import threading
+import queue
 
 
 """
@@ -21,7 +25,8 @@ WEB3_IDLE_PROVIDER = Web3()
 
 ALCHEMY_URL = 'http://127.0.0.1:8545'
 CHAIN_ID = 146
-POW_CONTRACT = "0x8A791620dd6260079BF849Dc5567aDC3F2FdC318"
+POW_CONTRACT = "0x9fE46736679d2D9a65F0992F2272dE9f3c7fa6e0"
+POW_NEW_PROBLEM_TOPIC0 = "0xd24ba3f407317c41a60dd7cf9f4ed40e425a44fbb60b68b9438832eba981a0c5"
 SESSION = requests.Session()
 
 PKEY_A_SELECTOR = "0xb4ffbbc8"
@@ -67,13 +72,9 @@ MINER_VERBOSE_FLAG = True
 
     think if we need mutex
 """
-SHARED_ASYNC_STATE = {
-    "master_nonce" : None,
-    "eth_feeHistory" : None,
-    "privateKeyA" : None,
-    "difficulty" : None
-}  
-ASYNC_MINING_TASK = None
+
+current_miner_process = None
+last_privateKeyA = None
 
 
 """
@@ -480,80 +481,20 @@ def broadcast_signed_txs(raw_signed_txs):
     return response
 
 
-"""
-    [DATA][ASYNC]
-    Main data polling working horse
 
-    ideally we want it to run at exact same timepoints (we could use old good timer though)
-"""
-async def poll_data():
-    global SHARED_ASYNC_STATE
-    while True:
-        current_time = time.time()
-        ms = int((current_time % 1) * 1000)
-        if ms <= 5:
-            next_poll = current_time - (ms / 1000) + 0.005
-        elif ms <= 505:
-            next_poll = current_time - (ms / 1000) + 0.505
-        else:
-            next_poll = current_time - (ms / 1000) + 1.005  
-
-        sleep_time = next_poll - time.time()
-        if sleep_time < 0:
-            sleep_time = 0 
-        await asyncio.sleep(sleep_time)
-
-        if (MINER_VERBOSE_FLAG):
-            print(f"[DATA-LOADER][{time.time():.3f}] Preparing for State Loading")
-
-        chain_state = get_essential_state_multicall(
-            master_address = MASTER_ADDRESS,
-            pow_address = POW_CONTRACT
-        )
-
-        chain_state["difficulty"] = "0x0000000fffffffffffffffffffffffffffffffff"
-
-        if (MINER_VERBOSE_FLAG):
-            print(f"[DATA-LOADER][{time.time():.3f}] Obtained State:")
-            print(f"[DATA-LOADER] master_nonce: {chain_state['master_nonce']}")
-            print(f"[DATA-LOADER] privateKeyA: {chain_state['privateKeyA']}")
-            print(f"[DATA-LOADER] difficulty: {chain_state['difficulty']}")
-            print()
-
-        if (chain_state["privateKeyA"] != SHARED_ASYNC_STATE["privateKeyA"]):
-            # fast enough, there is only 0.1ms window for race condition to arise
-            SHARED_ASYNC_STATE = copy.deepcopy(chain_state)
-            print(f"[DATA-LOADER] NEW TASK, RESTARTING MINING!")
-            print()
-            asyncio.create_task(restart_mining())
-
-
-"""
-    Mine + Submit
-
-    Launched on new data
-    restarting on new data 
-
-    We want this boy to operate on the global state, since nonce & gas history might be changde there (mining works > 500 ms)
-    and we ought to have the freshest state possible
-"""
-async def mine_and_submit():
-    global SHARED_ASYNC_STATE
+def mine_and_submit(chain_state):
+    """
+    Called in a separate process.  
+    1) Perform GPU-based mine_wagmi_magic_xor(...)  
+    2) Submit transaction.  
+    """
     try:
         if (MINER_VERBOSE_FLAG):
-            print(f"[MINER][{time.time():.3f}] Started")
-        pub_key_a = get_secp256k1_pub(SHARED_ASYNC_STATE["privateKeyA"][2:])
+            print(f"[MINER][{time.time():.3f}] STARTED for pkeyA: {chain_state['privateKeyA']}")
 
-        # # mine the result
-        # private_key_b = mine_wagmi_magic_xor(
-        #     strPublicKey = pub_key_a,
-        #     strMagicXorDifficulty = SHARED_ASYNC_STATE["difficulty"][2:]
-        # )
-
-        private_key_b = await asyncio.to_thread(
-            mine_wagmi_magic_xor,
-            strPublicKey=pub_key_a,
-            strMagicXorDifficulty=SHARED_ASYNC_STATE["difficulty"][2:]
+        private_key_b = mine_wagmi_magic_xor(
+            strPublicKey = get_secp256k1_pub(chain_state["privateKeyA"][2:]),
+            strMagicXorDifficulty = chain_state["difficulty"][2:]
         )
 
         if (MINER_VERBOSE_FLAG):
@@ -562,12 +503,12 @@ async def mine_and_submit():
         # submit the result
         tx = build_submit_tx_fast(
             master_address = MASTER_ADDRESS,
-            master_nonce = SHARED_ASYNC_STATE["master_nonce"],
+            master_nonce = chain_state["master_nonce"],
             reward_recipient_address = REWARDS_RECIPIENT_ADDRESS,
-            private_key_a = SHARED_ASYNC_STATE["privateKeyA"],
+            private_key_a = chain_state["privateKeyA"],
             private_key_b = private_key_b,
             funny_data = SIGN_DATA,
-            fee_history = SHARED_ASYNC_STATE["eth_feeHistory"]
+            fee_history = chain_state["eth_feeHistory"]
         )
         
         signed_tx = create_raw_signed_tx(tx, MASTER_PKEY)
@@ -580,117 +521,115 @@ async def mine_and_submit():
             print(f"[MINER][{time.time():.3f}] BROADCASTED")
             print()
 
-    except asyncio.CancelledError:
-        print(f"[MINER][{time.time():.3f}] Mining aborted!")
-        print()
-        raise
+    except Exception as e:
+        print("[MINER] Exception in miner process:", e)
 
 
 """
-    [ASYNC]
+    WebSockets event listener for new problem 
 
-    restart in non-blocking manner
+    POW_NEW_PROBLEM_TOPIC0
 """
-# async def restart_mining():
-#     global ASYNC_MINING_TASK
-#     if ASYNC_MINING_TASK is not None and not ASYNC_MINING_TASK.done():
-#         ASYNC_MINING_TASK.cancel()
+def websocket_listener(ws_url: str):
+    def on_message(ws, message):
+        print("[WS] Received message:", message)
 
-#     ASYNC_MINING_TASK = asyncio.create_task(mine_and_submit())
+        new_params = {
+            "privateKeyA"    : "0x123abc...",     # example
+            "difficulty"     : "0x0000fffff...", 
+            "master_nonce"   : 42,
+            "eth_feeHistory" : {...}               # or however you retrieve it
+        }
+        event_queue.put(new_params)
 
-async def restart_mining():
-    global ASYNC_MINING_TASK
-    if ASYNC_MINING_TASK is not None and not ASYNC_MINING_TASK.done():
-        ASYNC_MINING_TASK.cancel()
-        try:
-            # Wait for the task to be cancelled
-            await ASYNC_MINING_TASK
-        except asyncio.CancelledError:
-            pass  # Expected exception when cancelling
+    def on_error(ws, error):
+        print("[WS] Error:", error)
 
-    ASYNC_MINING_TASK = asyncio.create_task(mine_and_submit())
+    def on_close(ws, close_status_code, close_msg):
+        print("[WS] Closed:", close_status_code, close_msg)
+
+    def on_open(ws):
+        print("[WS] Connection opened to", ws_url)
+        # You might send subscription params, e.g. filter logs, etc.
+
+    ws = websocket.WebSocketApp(
+        ws_url,
+        on_open=on_open,
+        on_message=on_message,
+        on_error=on_error,
+        on_close=on_close
+    )
+    # This call will block forever in this thread, reading messages:
+    ws.run_forever()
 
 
 """
-    well, the only thing remaining is the websockets integration in a different thread to abort mining once another miner submited the solution
+    Alright, this one seems to work better
 
-    Core logic shall also be refactored 
+    1) fix polling timings
 
-    mining shall be run pooling wise (we can get the state update by polling and jump into the new mining tak straight away)
+    2) add websockets
 
-    SHallow logging - DONE
-    need time measurments though (better to be build with async logic in mind)
+    3) check how long it actually takes to stop mining and whether we shall start new process immediately and do a cleanup later
+
+
+    Alright:
+    current_miner_process.terminate()
+    current_miner_process.join()
+
+    + relaunch the process takes only arounf 6-9ms, so we are good
 """
-# def main():
-#     # 1) load chain state
+def main_loop():
 
-#     if (MINER_VERBOSE_FLAG):
-#         print(f"[MINER][{time.time():.3f}] Preparing for `get_essential_state_multicall`")
-#         print()
+    global current_miner_process, last_privateKeyA
 
-#     chain_state = get_essential_state_multicall(
-#         master_address = MASTER_ADDRESS,
-#         pow_address = POW_CONTRACT
-#     )
+    while True:
+        if (MINER_VERBOSE_FLAG):
+            print(f"[DATA-LOADER][{time.time():.3f}] Preparing for State Loading")
+        chain_state = get_essential_state_multicall(
+            master_address = MASTER_ADDRESS,
+            pow_address = POW_CONTRACT
+        )
 
-#     chain_state["difficulty"] = "0x0000ffffffffffffffffffffffffffffffffffff"
+        # quick patch for testing only!
+        chain_state["difficulty"] = "0x000000ffffffffffffffffffffffffffffffffff"
 
-#     if (MINER_VERBOSE_FLAG):
-#         print(f"[MINER][{time.time():.3f}] Obtained State:")
-#         print(f"[MINER] master_nonce: {chain_state['master_nonce']}")
-#         print(f"[MINER] privateKeyA: {chain_state['privateKeyA']}")
-#         print(f"[MINER] difficulty: {chain_state['difficulty']}")
-#         print()
+        if (MINER_VERBOSE_FLAG):
+            print(f"[DATA-LOADER][{time.time():.3f}] Obtained State:")
+            print(f"[DATA-LOADER] master_nonce: {chain_state['master_nonce']}")
+            print(f"[DATA-LOADER] privateKeyA: {chain_state['privateKeyA']}")
+            print(f"[DATA-LOADER] difficulty: {chain_state['difficulty']}")
+            print()
 
-    # pub_key_a = get_secp256k1_pub(chain_state["privateKeyA"][2:])
+        new_pkA = chain_state["privateKeyA"]
+        if new_pkA and new_pkA != last_privateKeyA:
+            if (MINER_VERBOSE_FLAG):
+                print(f"[DATA-LOADER][{time.time():.3f}] Detected new privateKeyA, starting MINER.")
 
-    # # 2) mine the result
-    # private_key_b = mine_wagmi_magic_xor(
-    #     strPublicKey = pub_key_a,
-    #     strMagicXorDifficulty = chain_state["difficulty"][2:]
-    # )
+            if current_miner_process and current_miner_process.is_alive():
+                if (MINER_VERBOSE_FLAG):
+                    print(f"[DATA-LOADER][{time.time():.3f}] killing old miner")
+                current_miner_process.terminate()
+                current_miner_process.join()
+                current_miner_process = None
+                if (MINER_VERBOSE_FLAG):
+                    print(f"[DATA-LOADER][{time.time():.3f}] KILLED")
 
-    # if (MINER_VERBOSE_FLAG):
-    #     print(f"[MINER][{time.time():.3f}] Obtained privateKeyB: {private_key_b}")
-    #     print()
+            current_miner_process = multiprocessing.Process(
+                target=mine_and_submit,
+                args=(chain_state,),
+            )
+            current_miner_process.start()
+            print(f"[DATA-LOADER][{time.time():.3f}] Spawned new miner")
 
-    # # 3) submit the result
+            last_privateKeyA = new_pkA
 
-    # tx = build_submit_tx_fast(
-    #     master_address = MASTER_ADDRESS,
-    #     master_nonce = chain_state["master_nonce"],
-    #     reward_recipient_address = REWARDS_RECIPIENT_ADDRESS,
-    #     private_key_a = chain_state["privateKeyA"],
-    #     private_key_b = private_key_b,
-    #     funny_data = SIGN_DATA,
-    #     fee_history = chain_state["eth_feeHistory"]
-    # )
-    
-    # signed_tx = create_raw_signed_tx(tx, MASTER_PKEY)
+        # adjust timing logic
+        time.sleep(1)
 
-    # if (MINER_VERBOSE_FLAG):
-    #     print(f"[MINER][{time.time():.3f}] build and signed tx with tx_hash: {signed_tx['tx_hash']}")
-    #     print()
-
-    # broadcast_signed_txs([signed_tx])
-    # if (MINER_VERBOSE_FLAG):
-    #     print(f"[MINER][{time.time():.3f}] BROADCASTED")
-    #     print()
-
-
-async def main():
-    # Start both tasks concurrently
-    data_polling_task = asyncio.create_task(poll_data())
-    
-    # Wait for both tasks to complete (which they shouldn't normally)
-    await data_polling_task
 
 
 if __name__ == "__main__":
-    try:
-        asyncio.run(main())
-    except KeyboardInterrupt:
-        print("Program terminated by user")
-
+    main_loop()
 
 
