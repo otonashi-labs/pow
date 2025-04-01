@@ -128,12 +128,14 @@ If you don’t have a local GPU, you can deploy your build (or the prebuilt Dock
 
 ### 3. Usage
 1.	Edit `.env.example` with your actual Infinity addresses/keys:
+
 `MASTER_ADDRESS` and `MASTER_PKEY` (the wallet that pays gas and signs solutions).
 `REWARDS_RECIPIENT_ADDRESS` (where your miner’s block rewards go).
 
 2.	Rename to `.env` or export those variables in your environment.
 
 3.	Check the Infinity RPC/WS endpoints in mine_infinity.py:
+
 `INFINITY_RPC = 'https://rpc.blaze.soniclabs.com'`
 `INFINITY_WS  = 'wss://rpc.blaze.soniclabs.com'`
 
