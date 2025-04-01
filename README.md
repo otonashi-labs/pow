@@ -115,6 +115,7 @@ To build:
 ```bash
     git clone https://github.com/otonashi-labs/pow.git
     cd pow
+    ./find_mac_includes.sh
     make -f Makefile.mac clean && make -f Makefile.mac && make -f Makefile.mac clean
 ```
 
