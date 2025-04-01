@@ -1,6 +1,6 @@
 # Infinity GPU Miner
 
-A **heavily optimized** OpenCL miner for solving the [Infinity Token](https://infinity.888) Proof-of-Work **Magic XOR** problem.  
+A **heavily optimized** OpenCL miner for solving the [Infinity Token](https://github.com/8finity-xyz/protocol) Proof-of-Work **Magic XOR** problem.  
 
 > **Acknowledgment**  
 > This miner is based on the [profanity2](https://github.com/1inch/profanity2) approach, with special modifications to handle Infinity’s `MagicXOR` puzzle. Many thanks to the original profanity2 developers for the incredible optimizations.
@@ -9,23 +9,24 @@ A **heavily optimized** OpenCL miner for solving the [Infinity Token](https://in
 
 ## 1. Overview
 
-The Infinity PoW mechanic ([PoW.sol](https://soniclabs.com/docs/PoW.sol)) requires finding a private key **B** (`privateKeyB`) such that:
+The Infinity PoW mechanic ([PoW.sol](https://github.com/8finity-xyz/protocol/blob/main/contracts/PoW.sol)) requires finding a private key **B** (`privateKeyB`) such that:
 
-(uint160(addressAB ^ MAGIC_NUMBER) < difficulty)
+`(uint160(addressAB ^ MAGIC_NUMBER) < difficulty)`ß
 
 Where:
-- `addressAB` is derived from `publicKeyAB`, which is in turn derived by summing two private keys (`privateKeyA + privateKeyB` mod `0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFEBAAEDCE6AF48A03BBFD25E8CD0364141`).
+- `addressAB` is derived from `publicKeyAB`, which is in turn derived by summing two private keys (`privateKeyA + privateKeyB` mod `0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFEFFFFFC2F`).
 - `MAGIC_NUMBER = 0x8888888888888888888888888888888888888888`
-- `difficulty` is a 160-bit value controlling the submission rate and puzzle hardness.
+- `difficulty` is a 160-bit value controlling the submission rate and puzzle hardness. (e.g. `0x00000000ffffffffffffffffffffffffffffffff`)
 
 This repository provides:
-- OpenCL kernels (`profanity.cl` + custom `magicxor` kernel) for computing thousands of candidate solutions in parallel.
+- OpenCL kernels (`profanity.cl` + custom `magicxor` kernel) for computing bazillions of candidate solutions in parallel.
 - A Python-based framework (`mine_infinity.py`) for automatically:
   - Listening to new puzzle parameters (`privateKeyA`, `difficulty`) from Infinity’s contract events.
+  - Polling `MASTER_ADDRESS` nonce and `eth_feeHistory` for tx building.
   - Mining solutions on the GPU.
-  - Submitting solutions via Ethereum-like transactions to the Infinity blockchain.
+  - Submitting solutions via Ethereum-like transactions to the Sonic blockchain.
 
-**Disclaimer**: This is highly optimized code that *cuts corners* for performance. **Always** verify any discovered key in a safe environment. Use a dedicated wallet for mining.
+**Disclaimer**: This is highly optimized code that *cuts corners* for performance. **Always** verify any discovered key in a safe environment if you plan to actually use it, but better never use discovered keys for storing value. Use a dedicated wallet for mining.
 
 ---
 
@@ -58,22 +59,25 @@ There are **three** common ways to build on Linux:
        g++ make git ocl-icd-opencl-dev libopencl-clang-dev python3 python3-pip
 
    # Clone and build:
-   git clone https://github.com/<YOUR-REPO>/infinity-gpu-miner.git
-   cd infinity-gpu-miner
+   git clone https://github.com/otonashi-labs/pow.git
+   cd pow
    make clean && make
+   ```
 
-This will produce magicXorMiner.so.
-	2.	Build with Docker, using the provided Dockerfile:
+This will produce `magicXorMiner.so`.
 
-docker build -t infinity-gpu-miner .
+### 2.	Build with Docker, using the provided Dockerfile:
+    ```bash
+    docker build -t infinity-gpu-miner .
+    
+    # Then run with GPU passthrough (e.g. NVIDIA Docker setup):
 
-Then run with GPU passthrough (e.g. NVIDIA Docker setup):
+    docker run --gpus all -it infinity-gpu-miner /bin/bash
 
-docker run --gpus all -it infinity-gpu-miner /bin/bash
+    # Inside the container you’ll find the compiled magicXorMiner.so in /app.
+    ```
 
-Inside the container you’ll find the compiled magicXorMiner.so in /app.
-
-	3.	Pull prebuilt container from Docker Hub:
+### 3.	Pull prebuilt container from Docker Hub:
 
 docker pull otonashi_labs/magic-xor-miner:latest
 
