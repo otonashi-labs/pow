@@ -150,7 +150,8 @@ If you don’t have a local GPU, you can deploy your build (or the prebuilt Dock
 
 Security Warning
 **This code is not designed with heavy security in mind; it’s best practice to use a dedicated wallet for mining with minimal funds.**
-⸻
+
+---
 
 ### 5. Tweaking / Advanced
 
@@ -176,7 +177,7 @@ MINER_VERBOSE_FLAG = True         # don't toggle these both to True -- they will
 
 ```
 
-⸻
+---
 
 License & Credits
 	•	This tool is adapted from 1inch/profanity2, all related disclaimers apply.
