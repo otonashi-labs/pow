@@ -124,7 +124,7 @@ This should produce `magicXorMiner.so.`
 
 If you don’t have a local GPU, you can deploy your build (or the prebuilt Docker image) onto Vast.ai. While renting a machine with GPU support, upload/pull the container and run the same steps (create your own template there to do that).
 
-⸻
+---
 
 ### 3. Usage
 1.	Edit `.env.example` with your actual Infinity addresses/keys:
