@@ -66,7 +66,7 @@ There are **three** common ways to build on Linux:
 
 This will produce `magicXorMiner.so`.
 
-### 2.	Build with Docker, using the provided Dockerfile:
+2. Build with Docker, using the provided Dockerfile:
     ```bash
     # build
     docker build -t infinity-gpu-miner .
@@ -77,7 +77,7 @@ This will produce `magicXorMiner.so`.
 
 Inside the container you’ll find the compiled `magicXorMiner.so` in /app.
 
-### 3.	Pull prebuilt container from Docker Hub:
+3. Pull prebuilt container from Docker Hub:
 ```bash
 docker pull otonashi_labs/magic-xor-miner:latest
 ```
@@ -124,13 +124,13 @@ If you don’t have a local GPU, you can deploy your build (or the prebuilt Dock
 ⸻
 
 3. Usage
-	1.	Edit .env.example with your actual Infinity addresses/keys:
-	•	MASTER_ADDRESS and MASTER_PKEY (the wallet that pays gas and signs solutions).
-	•	REWARDS_RECIPIENT_ADDRESS (where your miner’s block rewards go).
-	2.	Rename to .env or export those variables in your environment.
+	1.	Edit `.env.example` with your actual Infinity addresses/keys:
+	•	`MASTER_ADDRESS` and `MASTER_PKEY` (the wallet that pays gas and signs solutions).
+	•	`REWARDS_RECIPIENT_ADDRESS` (where your miner’s block rewards go).
+	2.	Rename to `.env` or export those variables in your environment.
 
 Security Warning
-This code is not designed with heavy security in mind; it’s best practice to use a dedicated wallet for mining with minimal funds.
+**This code is not designed with heavy security in mind; it’s best practice to use a dedicated wallet for mining with minimal funds.**
 
 	3.	Check the Infinity RPC/WS endpoints in mine_infinity.py:
 
@@ -140,19 +140,20 @@ INFINITY_WS  = 'wss://rpc.blaze.soniclabs.com'
 
 	4.	Run the miner:
 
-python3 mine_infinity.py
+`python3 mine_infinity.py`
 
 	•	The script:
-	•	Connects to Infinity’s chain.
-	•	Listens for NewProblem events.
+	•	Connects to Sonic chain.
+	•	Listens for NewProblem events (restarts search on NewProblem event).
+    •   Polls state for tx-building (nonce & eth_feeHistory)
 	•	Offloads GPU hashing to find privateKeyB.
-	•	Submits a solution once found.
-
+	•	Submits a solution once found. 
+    
 ⸻
 
 4. Tweaking / Advanced
 
-Within mine_infinity.py, you’ll find configuration options:
+Within `mine_infinity.py`, you’ll find configuration options:
 
 # You can provide custom data for the signature (EIP-191)
 SIGN_DATA = bytes.fromhex("deadbeef1337cafebabe")  # Must be ≤ 32 bytes
