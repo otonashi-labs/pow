@@ -126,20 +126,19 @@ If you don’t have a local GPU, you can deploy your build (or the prebuilt Dock
 ⸻
 
 ### 3. Usage
-	1.	Edit `.env.example` with your actual Infinity addresses/keys:
-        •	`MASTER_ADDRESS` and `MASTER_PKEY` (the wallet that pays gas and signs solutions).
-        •	`REWARDS_RECIPIENT_ADDRESS` (where your miner’s block rewards go).
-	2.	Rename to `.env` or export those variables in your environment.
-	3.	Check the Infinity RPC/WS endpoints in mine_infinity.py:
-        •   `INFINITY_RPC = 'https://rpc.blaze.soniclabs.com'`
-        •   `INFINITY_WS  = 'wss://rpc.blaze.soniclabs.com'`
-    4.	Run the miner: `python3 mine_infinity.py`
-        •	The script:
-        •	Connects to Sonic chain.
-        •	Listens for NewProblem events (restarts search on NewProblem event).
-        •   Polls state for tx-building (nonce & eth_feeHistory)
-        •	Offloads GPU hashing to find privateKeyB.
-        •	Submits a solution once found. 
+1.	Edit `.env.example` with your actual Infinity addresses/keys:
+    •	`MASTER_ADDRESS` and `MASTER_PKEY` (the wallet that pays gas and signs solutions).
+    •	`REWARDS_RECIPIENT_ADDRESS` (where your miner’s block rewards go).
+2.	Rename to `.env` or export those variables in your environment.
+3.	Check the Infinity RPC/WS endpoints in mine_infinity.py:
+    •   `INFINITY_RPC = 'https://rpc.blaze.soniclabs.com'`
+    •   `INFINITY_WS  = 'wss://rpc.blaze.soniclabs.com'`
+4.	Run the miner: `python3 mine_infinity.py`, which:
+    •	Connects to Sonic chain.
+    •	Listens for NewProblem events (restarts search on NewProblem event).
+    •   Polls state for tx-building (nonce & eth_feeHistory)
+    •	Offloads GPU hashing to find privateKeyB.
+    •	Submits a solution once found. 
     
 
 Security Warning
