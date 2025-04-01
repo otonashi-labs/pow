@@ -67,34 +67,35 @@ There are **three** common ways to build on Linux:
 This will produce `magicXorMiner.so`.
 
 ### 2.	Build with Docker, using the provided Dockerfile:
-```bash
+    ```bash
+    # build
     docker build -t infinity-gpu-miner .
     
     # Then run with GPU passthrough (e.g. NVIDIA Docker setup):
-
     docker run --gpus all -it infinity-gpu-miner /bin/bash
+    ```
 
-    # Inside the container you’ll find the compiled magicXorMiner.so in /app.
-```
+Inside the container you’ll find the compiled `magicXorMiner.so` in /app.
 
 ### 3.	Pull prebuilt container from Docker Hub:
-
+```bash
 docker pull otonashi_labs/magic-xor-miner:latest
-
+```
 Then run:
-
+```bash
 docker run --gpus all -it otonashi_labs/magic-xor-miner:latest /bin/bash
-
+```
 The container already includes everything needed.
 
-NOTE: Ensure your Docker runtime and driver stack are set up to allow GPU access.
+**NOTE: Ensure your Docker runtime and driver stack are set up to allow GPU access.**
 
-2.3 macOS Build
+### 2.3 macOS Build
 
 macOS support is tested primarily on Apple Silicon (M1/M2). Adjust paths and frameworks for your environment.
 
 Within Makefile.mac, you’ll see:
 
+```makefile
 CC = g++
 
 CDEFINES = -I/opt/homebrew/lib/python3.11/site-packages/pybind11/include
@@ -104,21 +105,21 @@ LDFLAGS = -framework OpenCL \
           -L/opt/homebrew/opt/python@3.11/Frameworks/Python.framework/Versions/3.11/lib \
           -lpython3.11
 
+```
 You must confirm the include/linker paths match where your Python 3.11 and pybind11 are installed. Commonly:
 	•	Headers live in /opt/homebrew/lib/python3.11/site-packages/pybind11/include
 	•	Python 3.11 frameworks in /opt/homebrew/opt/python@3.11/Frameworks/Python.framework/Versions/3.11
 
 To build:
+```bash
+make -f Makefile.mac clean && make -f Makefile.mac && make -f Makefile.mac clean
+```
 
-make -f Makefile.mac clean
-make -f Makefile.mac
-make -f Makefile.mac clean
+This should produce `magicXorMiner.so.`
 
-This should produce magicXorMiner.so.
+### 2.4 Hosting on Vast.ai
 
-2.4 Hosting on Vast.ai
-
-If you don’t have a local GPU, you can deploy your build (or the prebuilt Docker image) onto Vast.ai. After renting a machine with GPU support, upload/pull the container and run the same steps.
+If you don’t have a local GPU, you can deploy your build (or the prebuilt Docker image) onto Vast.ai. While renting a machine with GPU support, upload/pull the container and run the same steps (create your own template there to do that).
 
 ⸻
 
