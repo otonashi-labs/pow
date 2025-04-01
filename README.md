@@ -117,6 +117,8 @@ To build:
 
 This should produce `magicXorMiner.so.`
 
+**NOTE: This is the only way to launch miner on MacOs. Docker build DOES NOT work on Mac Os.**
+
 ### 2.4 Hosting on Vast.ai
 
 If you don’t have a local GPU, you can deploy your build (or the prebuilt Docker image) onto Vast.ai. While renting a machine with GPU support, upload/pull the container and run the same steps (create your own template there to do that).
@@ -148,28 +150,25 @@ Security Warning
 
 Within `mine_infinity.py`, you’ll find configuration options:
 
+```python
 # You can provide custom data for the signature (EIP-191)
 SIGN_DATA = bytes.fromhex("deadbeef1337cafebabe")  # Must be ≤ 32 bytes
 
 # [TX-BUILDER] - Gas fees
+# You can create your own strategy for gas fees!
 MAX_PRIORITY_FEE_MWEI = 500
 BASE_FEE_K = 2
 
 # [MINER] - Profanity2-like GPU tuning
-WORKSIZE_LOCAL = 64
-WORKSIZE_MAX = 0      # 0 => default = INVERSE_SIZE * INVERSE_MULTIPLE
-INVERSE_SIZE = 255
-INVERSE_MULTIPLE = 1024
-PROFANITY2_VERBOSE_FLAG = False
-MINER_VERBOSE_FLAG = True
+# Experiment with these values to find the optimal hashrate for your hardware.
+WORKSIZE_LOCAL = 64               # OpenCL local work size
+WORKSIZE_MAX = 0                  # 0 => default = INVERSE_SIZE * INVERSE_MULTIPLE
+INVERSE_SIZE = 255                # how many modular inversions per work item
+INVERSE_MULTIPLE = 1024           # how many parallel items to run
+PROFANITY2_VERBOSE_FLAG = False   # do you want profanity2 working logs?
+MINER_VERBOSE_FLAG = True         # don't toggle these both to True -- they will mix, one at a time please
 
-	•	WORKSIZE_LOCAL: OpenCL local work size
-	•	WORKSIZE_MAX: global work size (set 0 for auto)
-	•	INVERSE_SIZE: how many modular inversions per work item
-	•	INVERSE_MULTIPLE: how many parallel items to run
-	•	For more details, see the profanity2 repo.
-
-Experiment with these values to find the optimal hashrate for your hardware.
+```
 
 ⸻
 
