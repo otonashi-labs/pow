@@ -106,9 +106,10 @@ Within Makefile.mac, you’ll see:
             -lpython3.11
 
 ```
-You must confirm the include/linker paths match where your Python 3.11 and pybind11 are installed. Commonly:
-	•	Headers live in /opt/homebrew/lib/python3.11/site-packages/pybind11/include
-	•	Python 3.11 frameworks in /opt/homebrew/opt/python@3.11/Frameworks/Python.framework/Versions/3.11
+You must confirm the include/linker paths match where your Python 3.11 and pybind11 are installed. 
+Commonly:
+•	Headers live in /opt/homebrew/lib/python3.11/site-packages/pybind11/include
+•	Python 3.11 frameworks in /opt/homebrew/opt/python@3.11/Frameworks/Python.framework/Versions/3.11
 
 To build:
 ```bash
