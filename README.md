@@ -113,6 +113,8 @@ Commonly:
 
 To build:
 ```bash
+    git clone https://github.com/otonashi-labs/pow.git
+    
     make -f Makefile.mac clean && make -f Makefile.mac && make -f Makefile.mac clean
 ```
 
