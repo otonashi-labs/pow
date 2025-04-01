@@ -182,8 +182,9 @@ MINER_VERBOSE_FLAG = True         # don't toggle these both to True -- they will
 ---
 
 License & Credits
-	•	This tool is adapted from 1inch/profanity2, all related disclaimers apply.
-	•	No warranties. Use responsibly. Infinity GPU Miner authors are not liable for any damages or losses.
+- This tool is adapted from 1inch/profanity2, all related disclaimers apply.
+- No warranties. Use responsibly. Infinity GPU Miner authors are not liable for any damages or losses.
+
 
 Enjoy mining Infinity — and if you discover improvements or have questions, feel free to open an issue or a pull request.
 
