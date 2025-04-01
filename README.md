@@ -67,7 +67,7 @@ There are **three** common ways to build on Linux:
 This will produce `magicXorMiner.so`.
 
 ### 2.	Build with Docker, using the provided Dockerfile:
-    ```bash
+```bash
     docker build -t infinity-gpu-miner .
     
     # Then run with GPU passthrough (e.g. NVIDIA Docker setup):
@@ -75,7 +75,7 @@ This will produce `magicXorMiner.so`.
     docker run --gpus all -it infinity-gpu-miner /bin/bash
 
     # Inside the container you’ll find the compiled magicXorMiner.so in /app.
-    ```
+```
 
 ### 3.	Pull prebuilt container from Docker Hub:
 
