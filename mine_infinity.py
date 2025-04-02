@@ -77,8 +77,8 @@ Tweaking:
 """
 WORKSIZE_LOCAL = 64
 WORKSIZE_MAX = 0  # 0 means default
-INVERSE_SIZE = 63
-INVERSE_MULTIPLE = 32
+INVERSE_SIZE = 255
+INVERSE_MULTIPLE = 1024 
 PROFANITY2_VERBOSE_FLAG = False  # do you want profanity2 working logs?
 MINER_VERBOSE_FLAG = True # don't toggle these both to True -- they will mix, one at a time please
 
