@@ -21,6 +21,14 @@ from dotenv import load_dotenv
 import os
 
 """
+    TODO:
+        Simpler installation guide
+
+        explain more .env logic 
+        AND create simple wallet create & walkthough
+"""
+
+"""
     VALUABLES!!!
 """
 load_dotenv() 
@@ -34,15 +42,14 @@ REWARDS_RECIPIENT_ADDRESS = os.getenv("REWARDS_RECIPIENT_ADDRESS")
 """
 
 # chain specific details
-INFINITY_RPC = 'https://rpc.blaze.soniclabs.com'
-INFINITY_WS = 'wss://rpc.blaze.soniclabs.com'
+INFINITY_RPC = os.getenv("INFINITY_RPC") 
+INFINITY_WS = os.getenv("INFINITY_WS") 
 
 CHAIN_ID = 57054
 
 POW_CONTRACT = "0x8888FF459Da48e5c9883f893fc8653c8E55F8888"
-POW_NEW_PROBLEM_TOPIC0 = "0xd24ba3f407317c41a60dd7cf9f4ed40e425a44fbb60b68b9438832eba981a0c5"
-PKEY_A_SELECTOR = "0xb4ffbbc8"
-DIFF_SELECTOR = "0x19cae462"
+POW_NEW_PROBLEM_TOPIC0 = "0xa100d84256eafde4f67167e266005a7b734f135b1ba16dd349e2469a81d05c47"
+PROBLEM_SELECTOR = "0x88f116d0"
 GAS_LIMIT_SUBMIT = 2_000_000
 
 # be creative, pick your own data, don't make it too long though,
@@ -70,8 +77,8 @@ Tweaking:
 """
 WORKSIZE_LOCAL = 64
 WORKSIZE_MAX = 0  # 0 means default
-INVERSE_SIZE = 255
-INVERSE_MULTIPLE = 1024
+INVERSE_SIZE = 63
+INVERSE_MULTIPLE = 32
 PROFANITY2_VERBOSE_FLAG = False  # do you want profanity2 working logs?
 MINER_VERBOSE_FLAG = True # don't toggle these both to True -- they will mix, one at a time please
 
@@ -203,54 +210,14 @@ def create_signature_ab(
     return r, s, v
 
 
-"""
-    [DATA][STATE-LOADING]
-    Build calldata for rpc-multicall
-"""
-def get_essential_state_multicall_params(
-        master_address,
-        pow_address
-    ):
-    nonce_req = {
-        "id": "nonce_req",
-        "jsonrpc": "2.0",
-        "params": [
-            master_address,
-            "latest"
-        ],
-        "method": "eth_getTransactionCount"
-    }
-    
-    gas_req = {
-        "method" : "eth_feeHistory",
-        "jsonrpc" : "2.0",
-        "params" : ["0x5", "latest", []],
-        "id" : "gas_req"
-    }
-    
-    pkey_a_req = {
-        "jsonrpc":"2.0",
-        "method":"eth_call",
-        "params":[{
-            "to": pow_address,
-            "data": PKEY_A_SELECTOR, 
-            }, "latest"],
-        "id":"pkey_a_req"
-    }
-    
-    diff_req = {
-        "jsonrpc":"2.0",
-        "method":"eth_call",
-        "params":[{
-            "to": pow_address,
-            "data": DIFF_SELECTOR, 
-            }, "latest"],
-        "id":"diff_req"
-    }
-    
-    return [nonce_req, gas_req, pkey_a_req, diff_req]
-        
-    
+def _parse_promlem_req(data):
+    if "0x" in data:
+        data = data[2:]
+    nonce = int("0x" + data[0 : 64], 16)
+    privateKeyA = "0x" + data[64 : 128]
+    diff = "0x" + data[128 + 24 :]
+    return nonce, privateKeyA, diff
+            
 """
     [DATA][STATE LOADING]
     Conduct multicall
@@ -270,11 +237,36 @@ def get_essential_state_multicall(
         pow_address
     ):        
     
-    multicall_params = get_essential_state_multicall_params(master_address, pow_address)
+    nonce_req = {
+        "id": "nonce_req",
+        "jsonrpc": "2.0",
+        "params": [
+            master_address,
+            "latest"
+        ],
+        "method": "eth_getTransactionCount"
+    }
     
+    gas_req = {
+        "method" : "eth_feeHistory",
+        "jsonrpc" : "2.0",
+        "params" : ["0x5", "latest", []],
+        "id" : "gas_req"
+    }
+    
+    problem_req = {
+        "jsonrpc":"2.0",
+        "method":"eth_call",
+        "params":[{
+            "to": pow_address,
+            "data": PROBLEM_SELECTOR, 
+            }, "latest"],
+        "id":"problem_req"
+    }
+        
     result = SESSION.post(
         url = INFINITY_RPC,
-        json = multicall_params
+        json = [nonce_req, gas_req, problem_req]
     )
     
     if result.status_code != 200:
@@ -285,24 +277,26 @@ def get_essential_state_multicall(
         "master_nonce" : None,
         "eth_feeHistory" : None,
         "privateKeyA" : None,
-        "difficulty" : None
-    }    
+        "difficulty" : None,
+        "problemNonce" : None
+    }   
+    
     for sub_res in res:
         if (sub_res["id"] == "nonce_req") and ("result" in sub_res):
             ret["master_nonce"] = int(sub_res['result'], 16)
         elif (sub_res["id"] == "gas_req") and ("result" in sub_res):
             ret["eth_feeHistory"] = sub_res["result"]                
-        elif (sub_res["id"] == "pkey_a_req") and ("result" in sub_res):
-            ret["privateKeyA"] = sub_res["result"]
-        elif (sub_res["id"] == "diff_req") and ("result" in sub_res):
-            ret["difficulty"] = "0x" + sub_res["result"][26:]
+        elif (sub_res["id"] == "problem_req") and ("result" in sub_res):
+            nonce, pkey, diff = _parse_promlem_req(sub_res["result"])
+            ret["privateKeyA"] = pkey
+            ret["difficulty"] = diff
+            ret["problemNonce"] = nonce
         
-    if (ret["master_nonce"] == None) or (ret["eth_feeHistory"] == None) or (ret["privateKeyA"] == None) or (ret["difficulty"] == None):
+    if (ret["master_nonce"] == None) or (ret["eth_feeHistory"] == None) or (ret["privateKeyA"] == None) or (ret["difficulty"] == None) or (ret["problemNonce"] == None):
         return None
     else:
         return ret
     
-
 """
     [CORE][MINER][OPENCL]
 
@@ -559,13 +553,13 @@ def listen_for_problems(ws_url, contract_address, event_topic):
     ws.send(json.dumps(subscription_request))
 
     sub_reply = ws.recv()
-    if (MINER_VERBOSE_FLAG):
+    if (True):
         print(f"[WS-LISTENER][{time.time():.3f}] Subscribed. Reply: {sub_reply}")
 
     while True:
         raw_message = ws.recv() 
         data = json.loads(raw_message)
-        
+
         if "params" not in data or "result" not in data["params"]:
             continue 
 
@@ -576,21 +570,23 @@ def listen_for_problems(ws_url, contract_address, event_topic):
         problem_data_hex = log_result["data"] 
         problem_data_n0x = problem_data_hex[2:]
 
-        decoded_vals = decode(["uint256","uint160"], bytes.fromhex(problem_data_n0x))
-        pkA_uint160, difficulty_uint = decoded_vals
+        decoded_vals = decode(["uint256","uint256","uint160"], bytes.fromhex(problem_data_n0x))
+        problem_nonce, pkey_A, difficulty_uint = decoded_vals
 
         difficulty_hex = "0x" + format(difficulty_uint, "040x")
-        privateKeyA_hex = "0x" + format(pkA_uint160, "x")
+        privateKeyA_hex = "0x" + format(pkey_A, "x")
 
         if (MINER_VERBOSE_FLAG):
             print(f"[WS-LISTENER][{time.time():.3f}] NewProblem Detected")
             print(f"[WS-LISTENER] difficulty: {difficulty_hex}")
             print(f"[WS-LISTENER] privateKeyA_hex: {privateKeyA_hex}")
+            print(f"[WS-LISTENER] problemNonce: {problem_nonce}")
             print()
 
         new_problem = {
             "difficulty": difficulty_hex,
             "privateKeyA": privateKeyA_hex,
+            "problemNonce" : problem_nonce
         }
         PROBLEMS_QUEUE.put(new_problem)
 
@@ -623,6 +619,7 @@ def poll_state_periodically(poll_interval=0.5):
                 print(f"[POLLING] master_nonce: {polled_data['master_nonce']}")
                 print(f"[POLLING] privateKeyA: {polled_data['privateKeyA']}")
                 print(f"[POLLING] difficulty: {polled_data['difficulty']}")
+                print(f"[POLLING] problemNonce: {polled_data['problemNonce']}")
                 print()
 
             if polled_data and polled_data["master_nonce"] != None:
@@ -669,7 +666,11 @@ def main_loop():
 
             # bootstrap last_problem on launch
             if ((last_poll_data != None) and (last_problem == None)):
-                last_problem = { "difficulty" : last_poll_data["difficulty"], "privateKeyA" : last_poll_data["privateKeyA"]}
+                last_problem = { 
+                    "difficulty" : last_poll_data["difficulty"], 
+                    "privateKeyA" : last_poll_data["privateKeyA"],
+                    "problemNonce" : last_poll_data["problemNonce"]
+                }
 
             if (MINER_VERBOSE_FLAG):
                 print(f"[MAIN-LOOP][{time.time():.3f}] got polling update")
@@ -689,6 +690,8 @@ def main_loop():
             2) ws data packet has been lost
 
             polling is somewhat more reliable yet slow
+
+            we could change this logic to make it problemNonce based
         """
         if ((last_poll_data and last_problem)):
             actually_latest_pkey = last_problem["privateKeyA"]
@@ -712,6 +715,7 @@ def main_loop():
                 print(f"[MAIN-LOOP][{time.time():.3f}] new problem detected - relaunching MINER")
                 print(f"[MAIN-LOOP] diff: {last_problem['difficulty']}")
                 print(f"[MAIN-LOOP] pkey: {actually_latest_pkey}")
+                print(f"[MAIN-LOOP] problemNonce: {last_problem['problemNonce']}")
 
             el_problemo = {
                 "privateKeyA":    actually_latest_pkey,
@@ -745,9 +749,6 @@ def main_loop():
     3) main loop managing them all (and launching miner)
 """
 if __name__ == "__main__":
-    CONTRACT_ADDR = POW_CONTRACT
-    EVENT_TOPIC   = POW_NEW_PROBLEM_TOPIC0
-
     ws_thread = threading.Thread(
         target=listen_for_problems,
         args=(INFINITY_WS, POW_CONTRACT, POW_NEW_PROBLEM_TOPIC0),
