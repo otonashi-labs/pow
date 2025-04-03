@@ -7,7 +7,7 @@ A **heavily optimized** OpenCL miner for solving the [Infinity Token](https://gi
 
 ---
 
-## 1. Overview
+## 1.  Overview
 
 The Infinity PoW mechanic ([PoW.sol](https://github.com/8finity-xyz/protocol/blob/main/contracts/PoW.sol)) requires finding a private key **B** (`privateKeyB`) such that:
 
@@ -52,44 +52,70 @@ The code includes two Makefiles:
 
 There are **three** common ways to build on Linux:
 
-1. **Bare-metal** environment:
+1. **Hardcore:** Bare-metal installation:
 ```bash
    # Install dependencies, for example on Ubuntu:
    sudo apt-get update && sudo apt-get install -y \
-       g++ make git ocl-icd-opencl-dev libopencl-clang-dev python3 python3-pip
+    g++ make git ocl-icd-opencl-dev libopencl-clang-dev curl python3 python3-pip clinfo nano
+
+    # Install Python packages for Python 3.10
+   pip3 install pybind11 safe-pysha3 ecdsa web3 coincurve websocket-client websockets dotenv 
 
    # Clone and build:
    git clone https://github.com/otonashi-labs/pow.git
    cd pow
    make clean && make
+
+   # Potentially you might wanna use this line. If Nvidia and OpenCL aren't befrending
+   # Configure OpenCL ICD for NVIDIA
+   # mkdir -p /etc/OpenCL/vendors && echo "libnvidia-opencl.so.1" > /etc/OpenCL/vendors/nvidia.icd
+
+   # mine (but please do some setup first and congrats if this option succeded 🎉)
+   python3 mine_infinity.py
 ```
 
-This will produce `magicXorMiner.so`.
+This will likely produce `magicXorMiner.so`, with high probability.
 
-2. Build with Docker, using the provided Dockerfile:
+However, there might be platform specific issues.  If experiencing any trouble with installing all of the dependancies -- please consider Docker build. 
+
+**THIS IS THE HARDCORE BUILD VERSION**
+
+2. **Recommended:** Build with Docker, using the provided Dockerfile:
 ```bash
     # build
     docker build -t infinity-gpu-miner .
     
     # Then run with GPU passthrough (e.g. NVIDIA Docker setup):
     docker run --gpus all -it infinity-gpu-miner /bin/bash
+
+    # all repository files will be already there
+    cd /app
+
+    # mine (but please do some setup first)
+    python3 mine_infinity.py
  ```
 
 Inside the container you’ll find the compiled `magicXorMiner.so` in /app.
 
-3. Pull prebuilt container from Docker Hub:
+3. **Simplest Possible:** Pull prebuilt container from Docker Hub:
 ```bash
-    docker pull otonashi_labs/magic-xor-miner:latest
+    docker pull devoak/magic-xor-miner:nvidia-latest
 ```
 Then run:
 ```bash
-    docker run --gpus all -it otonashi_labs/magic-xor-miner:latest /bin/bash
+    docker run --gpus all -it devoak/magic-xor-miner:nvidia-latest /bin/bash
+
+    cd /app
+
+    # mine (but please do some setup first)
+    python3 mine_infinity.py
+
 ```
 The container already includes everything needed.
 
 **NOTE: Ensure your Docker runtime and driver stack are set up to allow GPU access.**
 
-### 2.3 macOS Build
+### 2.3 [WIP] macOS Build [WIP]
 
 macOS support is tested primarily on Apple Silicon (M1/M2). Adjust paths and frameworks for your environment.
 
@@ -123,44 +149,35 @@ This should produce `magicXorMiner.so.`
 
 **NOTE: This is the only way to launch miner on MacOs. Docker build DOES NOT work on Mac Os.**
 
-### 2.4 Hosting on Vast.ai
+### 2.4 Hosting on Vast.ai [WIP]
 
 If you don’t have a local GPU, you can deploy your build (or the prebuilt Docker image) onto Vast.ai. While renting a machine with GPU support, upload/pull the container and run the same steps (create your own template there to do that).
 
 ---
 
-### 3. Usage
+## 3. Usage
 1.	Edit `.env.example` with your actual Infinity addresses/keys:
 
 `MASTER_ADDRESS` and `MASTER_PKEY` (the wallet that pays gas and signs solutions).
 
 `REWARDS_RECIPIENT_ADDRESS` (where your miner’s block rewards go).
 
+`INFINITY_RPC` and `INFINITY_WS` - Sonic blockchain connections (you can use default ones as well)
+
 2.	Rename to `.env` or export those variables in your environment.
 
-3.	Check the Infinity RPC/WS endpoints in mine_infinity.py:
+*NOTE: `nano .env.example` and do all the changes inside; then `mv .env.example .env` will do the job*
 
-`INFINITY_RPC = 'https://rpc.blaze.soniclabs.com'`
-
-`INFINITY_WS  = 'wss://rpc.blaze.soniclabs.com'`
-
-4.	Run the miner: `python3 mine_infinity.py`, which:
-
-    1. Connects to Sonic chain.
-    2. Listens for NewProblem events (restarts search on NewProblem event).
-    3. Polls state for tx-building (nonce & eth_feeHistory)
-    4. Offloads GPU hashing to find privateKeyB.
-    5. Submits a solution once found. 
-        
+3.	Run the miner: `python3 mine_infinity.py`, which:
 
 Security Warning
 **This code is not designed with heavy security in mind; it’s best practice to use a dedicated wallet for mining with minimal funds.**
 
 ---
 
-### 5. Tweaking / Advanced
+## 4. Tweaking / Advanced
 
-Within `mine_infinity.py`, you’ll find configuration options:
+Within `config.py`, you’ll find configuration options:
 
 ```python
 # You can provide custom data for the signature (EIP-191)

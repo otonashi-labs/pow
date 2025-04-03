@@ -15456,3 +15456,365 @@
 [POLLING] difficulty: 0xffffffffffffffffffffffffffffffffffffffff
 [POLLING] problemNonce: 104
 [POLLING][1743698355.505] Preparing for polling step
+[POLLING][1743699016.332] Preparing for polling step
+[MAIN-LOOP][1743699016.711] STARTING
+[POLLING[1743699017.212] Obtained State:
+[POLLING] master_nonce: 2954
+[POLLING] privateKeyA: 0xf525d3429df6961518054023cdcddb2c9ec7c1e74bda143e6a40fc28bdab76f6
+[POLLING] difficulty: 0xffffffffffffffffffffffffffffffffffffffff
+[POLLING] problemNonce: 104
+[MAIN-LOOP][1743699017.216] new problem detected - relaunching MINER
+[MAIN-LOOP] diff: 0xffffffffffffffffffffffffffffffffffffffff
+[MAIN-LOOP] pkey: 0xf525d3429df6961518054023cdcddb2c9ec7c1e74bda143e6a40fc28bdab76f6
+[MAIN-LOOP] problemNonce: 104
+[MAIN-LOOP][1743699017.225] SPAWNED NEW MINER
+[WS-LISTENER][1743699017.347] Subscribed. Reply: {"jsonrpc":"2.0","id":1,"result":"0x8fafa906a89e0be2e11fb4be50627640"}
+
+[POLLING][1743699017.502] Preparing for polling step
+[MINER][1743699017.608] STARTED for pkeyA: 0xf525d3429df6961518054023cdcddb2c9ec7c1e74bda143e6a40fc28bdab76f6
+[POLLING[1743699017.635] Obtained State:
+[POLLING] master_nonce: 2954
+[POLLING] privateKeyA: 0xf525d3429df6961518054023cdcddb2c9ec7c1e74bda143e6a40fc28bdab76f6
+[POLLING] difficulty: 0xffffffffffffffffffffffffffffffffffffffff
+[POLLING] problemNonce: 104
+[POLLING][1743699018.001] Preparing for polling step
+[POLLING[1743699018.136] Obtained State:
+[POLLING] master_nonce: 2954
+[POLLING] privateKeyA: 0xf525d3429df6961518054023cdcddb2c9ec7c1e74bda143e6a40fc28bdab76f6
+[POLLING] difficulty: 0xffffffffffffffffffffffffffffffffffffffff
+[POLLING] problemNonce: 104
+[POLLING][1743699018.505] Preparing for polling step
+[POLLING[1743699018.639] Obtained State:
+[POLLING] master_nonce: 2954
+[POLLING] privateKeyA: 0xf525d3429df6961518054023cdcddb2c9ec7c1e74bda143e6a40fc28bdab76f6
+[POLLING] difficulty: 0xffffffffffffffffffffffffffffffffffffffff
+[POLLING] problemNonce: 104
+[MINER][1743699018.714] Obtained privateKeyB: 0x00002d750b9fa079bf7d0914135688f09fdfa9fea41c87d9024d6d07a2b97cdc
+[MINER][1743699018.722] build and signed tx with tx_hash: 0x41ddd2b91ba4b561929bca5189f363e565c1eae286987182fd6df0e33ed49130
+[POLLING][1743699019.005] Preparing for polling step
+[MINER][1743699019.135] BROADCASTED 0x41ddd2b91ba4b561929bca5189f363e565c1eae286987182fd6df0e33ed49130
+[POLLING[1743699019.139] Obtained State:
+[POLLING] master_nonce: 2954
+[POLLING] privateKeyA: 0xf525d3429df6961518054023cdcddb2c9ec7c1e74bda143e6a40fc28bdab76f6
+[POLLING] difficulty: 0xffffffffffffffffffffffffffffffffffffffff
+[POLLING] problemNonce: 104
+[MAIN-LOOP][1743699019.231] MINER BROSKIII HAS DIEEDDD
+[MAIN-LOOP][1743699019.231] new problem detected - relaunching MINER
+[MAIN-LOOP] diff: 0xffffffffffffffffffffffffffffffffffffffff
+[MAIN-LOOP] pkey: 0xf525d3429df6961518054023cdcddb2c9ec7c1e74bda143e6a40fc28bdab76f6
+[MAIN-LOOP] problemNonce: 104
+[MAIN-LOOP][1743699019.233] SPAWNED NEW MINER
+[POLLING][1743699019.505] Preparing for polling step
+[MINER][1743699019.584] STARTED for pkeyA: 0xf525d3429df6961518054023cdcddb2c9ec7c1e74bda143e6a40fc28bdab76f6
+[POLLING[1743699019.641] Obtained State:
+[POLLING] master_nonce: 2954
+[POLLING] privateKeyA: 0xf525d3429df6961518054023cdcddb2c9ec7c1e74bda143e6a40fc28bdab76f6
+[POLLING] difficulty: 0xffffffffffffffffffffffffffffffffffffffff
+[POLLING] problemNonce: 104
+[POLLING][1743699020.005] Preparing for polling step
+[POLLING[1743699020.141] Obtained State:
+[POLLING] master_nonce: 2955
+[POLLING] privateKeyA: 0xf525d3429df6961518054023cdcddb2c9ec7c1e74bda143e6a40fc28bdab76f6
+[POLLING] difficulty: 0xffffffffffffffffffffffffffffffffffffffff
+[POLLING] problemNonce: 104
+[POLLING][1743699020.501] Preparing for polling step
+[POLLING[1743699020.637] Obtained State:
+[POLLING] master_nonce: 2955
+[POLLING] privateKeyA: 0xf525d3429df6961518054023cdcddb2c9ec7c1e74bda143e6a40fc28bdab76f6
+[POLLING] difficulty: 0xffffffffffffffffffffffffffffffffffffffff
+[POLLING] problemNonce: 104
+[MINER][1743699020.638] Obtained privateKeyB: 0x0000d9e04ca82066f09b220724160750adc5563a3865b59513e4d70f1d631fb9
+[MINER][1743699020.644] build and signed tx with tx_hash: 0xe134b2080fe0dd8747c34cdc63c0a621e38f491dd1d9b5ecc9aba2c1871af4e4
+[POLLING][1743699021.005] Preparing for polling step
+[MINER][1743699021.080] BROADCASTED 0xe134b2080fe0dd8747c34cdc63c0a621e38f491dd1d9b5ecc9aba2c1871af4e4
+[POLLING[1743699021.138] Obtained State:
+[POLLING] master_nonce: 2955
+[POLLING] privateKeyA: 0xf525d3429df6961518054023cdcddb2c9ec7c1e74bda143e6a40fc28bdab76f6
+[POLLING] difficulty: 0xffffffffffffffffffffffffffffffffffffffff
+[POLLING] problemNonce: 104
+[MAIN-LOOP][1743699021.176] MINER BROSKIII HAS DIEEDDD
+[MAIN-LOOP][1743699021.176] new problem detected - relaunching MINER
+[MAIN-LOOP] diff: 0xffffffffffffffffffffffffffffffffffffffff
+[MAIN-LOOP] pkey: 0xf525d3429df6961518054023cdcddb2c9ec7c1e74bda143e6a40fc28bdab76f6
+[MAIN-LOOP] problemNonce: 104
+[MAIN-LOOP][1743699021.178] SPAWNED NEW MINER
+[POLLING][1743699021.501] Preparing for polling step
+[MINER][1743699021.555] STARTED for pkeyA: 0xf525d3429df6961518054023cdcddb2c9ec7c1e74bda143e6a40fc28bdab76f6
+[POLLING[1743699021.632] Obtained State:
+[POLLING] master_nonce: 2955
+[POLLING] privateKeyA: 0xf525d3429df6961518054023cdcddb2c9ec7c1e74bda143e6a40fc28bdab76f6
+[POLLING] difficulty: 0xffffffffffffffffffffffffffffffffffffffff
+[POLLING] problemNonce: 104
+[POLLING][1743699022.001] Preparing for polling step
+[POLLING[1743699022.133] Obtained State:
+[POLLING] master_nonce: 2956
+[POLLING] privateKeyA: 0xf525d3429df6961518054023cdcddb2c9ec7c1e74bda143e6a40fc28bdab76f6
+[POLLING] difficulty: 0xffffffffffffffffffffffffffffffffffffffff
+[POLLING] problemNonce: 104
+[POLLING][1743699022.501] Preparing for polling step
+[MINER][1743699022.630] Obtained privateKeyB: 0x0000a9f14d966817a6d86b3f04eb3d6c7de6581baf4417c77043b9e097ef6023
+[MINER][1743699022.636] build and signed tx with tx_hash: 0x911c64b5ce8df2e4cdd25fff5334249766c7e623e1b3a84a90aac0bc5d4e743e
+[POLLING[1743699022.645] Obtained State:
+[POLLING] master_nonce: 2956
+[POLLING] privateKeyA: 0xf525d3429df6961518054023cdcddb2c9ec7c1e74bda143e6a40fc28bdab76f6
+[POLLING] difficulty: 0xffffffffffffffffffffffffffffffffffffffff
+[POLLING] problemNonce: 104
+[POLLING][1743699023.005] Preparing for polling step
+[MINER][1743699023.076] BROADCASTED 0x911c64b5ce8df2e4cdd25fff5334249766c7e623e1b3a84a90aac0bc5d4e743e
+[POLLING[1743699023.146] Obtained State:
+[POLLING] master_nonce: 2956
+[POLLING] privateKeyA: 0xf525d3429df6961518054023cdcddb2c9ec7c1e74bda143e6a40fc28bdab76f6
+[POLLING] difficulty: 0xffffffffffffffffffffffffffffffffffffffff
+[POLLING] problemNonce: 104
+[MAIN-LOOP][1743699023.166] MINER BROSKIII HAS DIEEDDD
+[MAIN-LOOP][1743699023.166] new problem detected - relaunching MINER
+[MAIN-LOOP] diff: 0xffffffffffffffffffffffffffffffffffffffff
+[MAIN-LOOP] pkey: 0xf525d3429df6961518054023cdcddb2c9ec7c1e74bda143e6a40fc28bdab76f6
+[MAIN-LOOP] problemNonce: 104
+[MAIN-LOOP][1743699023.168] SPAWNED NEW MINER
+[POLLING][1743699023.501] Preparing for polling step
+[MINER][1743699023.527] STARTED for pkeyA: 0xf525d3429df6961518054023cdcddb2c9ec7c1e74bda143e6a40fc28bdab76f6
+[POLLING[1743699023.637] Obtained State:
+[POLLING] master_nonce: 2956
+[POLLING] privateKeyA: 0xf525d3429df6961518054023cdcddb2c9ec7c1e74bda143e6a40fc28bdab76f6
+[POLLING] difficulty: 0xffffffffffffffffffffffffffffffffffffffff
+[POLLING] problemNonce: 104
+[POLLING][1743699024.005] Preparing for polling step
+[POLLING[1743699024.138] Obtained State:
+[POLLING] master_nonce: 2957
+[POLLING] privateKeyA: 0xf525d3429df6961518054023cdcddb2c9ec7c1e74bda143e6a40fc28bdab76f6
+[POLLING] difficulty: 0xffffffffffffffffffffffffffffffffffffffff
+[POLLING] problemNonce: 104
+[POLLING][1743699024.505] Preparing for polling step
+[MINER][1743699024.601] Obtained privateKeyB: 0x00008534143dec6e42d9ede79e4565a36475bf5e155584afba18727c6c1786a9
+[MINER][1743699024.607] build and signed tx with tx_hash: 0xb295cefba3537faecff5b3bd25496fe8dc1cfb5679ec66ea948250e5ca312a6a
+[POLLING[1743699024.640] Obtained State:
+[POLLING] master_nonce: 2957
+[POLLING] privateKeyA: 0xf525d3429df6961518054023cdcddb2c9ec7c1e74bda143e6a40fc28bdab76f6
+[POLLING] difficulty: 0xffffffffffffffffffffffffffffffffffffffff
+[POLLING] problemNonce: 104
+[POLLING][1743699025.004] Preparing for polling step
+[MINER][1743699025.016] BROADCASTED 0xb295cefba3537faecff5b3bd25496fe8dc1cfb5679ec66ea948250e5ca312a6a
+[MAIN-LOOP][1743699025.111] MINER BROSKIII HAS DIEEDDD
+[MAIN-LOOP][1743699025.112] new problem detected - relaunching MINER
+[MAIN-LOOP] diff: 0xffffffffffffffffffffffffffffffffffffffff
+[MAIN-LOOP] pkey: 0xf525d3429df6961518054023cdcddb2c9ec7c1e74bda143e6a40fc28bdab76f6
+[MAIN-LOOP] problemNonce: 104
+[MAIN-LOOP][1743699025.115] SPAWNED NEW MINER
+[POLLING[1743699025.141] Obtained State:
+[POLLING] master_nonce: 2957
+[POLLING] privateKeyA: 0xf525d3429df6961518054023cdcddb2c9ec7c1e74bda143e6a40fc28bdab76f6
+[POLLING] difficulty: 0xffffffffffffffffffffffffffffffffffffffff
+[POLLING] problemNonce: 104
+[MINER][1743699025.479] STARTED for pkeyA: 0xf525d3429df6961518054023cdcddb2c9ec7c1e74bda143e6a40fc28bdab76f6
+[POLLING][1743699025.505] Preparing for polling step
+[POLLING[1743699025.639] Obtained State:
+[POLLING] master_nonce: 2957
+[POLLING] privateKeyA: 0xf525d3429df6961518054023cdcddb2c9ec7c1e74bda143e6a40fc28bdab76f6
+[POLLING] difficulty: 0xffffffffffffffffffffffffffffffffffffffff
+[POLLING] problemNonce: 104
+[POLLING][1743699026.005] Preparing for polling step
+[POLLING[1743699026.140] Obtained State:
+[POLLING] master_nonce: 2958
+[POLLING] privateKeyA: 0xf525d3429df6961518054023cdcddb2c9ec7c1e74bda143e6a40fc28bdab76f6
+[POLLING] difficulty: 0xffffffffffffffffffffffffffffffffffffffff
+[POLLING] problemNonce: 104
+[POLLING][1743699026.501] Preparing for polling step
+[MINER][1743699026.544] Obtained privateKeyB: 0x00004d4639f41d9ef0992190ccec1d5753858ffc6cecd5a5f5b14a21c4ffd3b8
+[MINER][1743699026.550] build and signed tx with tx_hash: 0x4bf2984870f6981da8ed8160553f6859ed788257aa44d44cf0a95866144c1c9b
+[POLLING[1743699026.633] Obtained State:
+[POLLING] master_nonce: 2958
+[POLLING] privateKeyA: 0xf525d3429df6961518054023cdcddb2c9ec7c1e74bda143e6a40fc28bdab76f6
+[POLLING] difficulty: 0xffffffffffffffffffffffffffffffffffffffff
+[POLLING] problemNonce: 104
+[MINER][1743699026.956] BROADCASTED 0x4bf2984870f6981da8ed8160553f6859ed788257aa44d44cf0a95866144c1c9b
+[POLLING][1743699027.005] Preparing for polling step
+[MAIN-LOOP][1743699027.051] MINER BROSKIII HAS DIEEDDD
+[MAIN-LOOP][1743699027.051] new problem detected - relaunching MINER
+[MAIN-LOOP] diff: 0xffffffffffffffffffffffffffffffffffffffff
+[MAIN-LOOP] pkey: 0xf525d3429df6961518054023cdcddb2c9ec7c1e74bda143e6a40fc28bdab76f6
+[MAIN-LOOP] problemNonce: 104
+[MAIN-LOOP][1743699027.053] SPAWNED NEW MINER
+[POLLING[1743699027.136] Obtained State:
+[POLLING] master_nonce: 2958
+[POLLING] privateKeyA: 0xf525d3429df6961518054023cdcddb2c9ec7c1e74bda143e6a40fc28bdab76f6
+[POLLING] difficulty: 0xffffffffffffffffffffffffffffffffffffffff
+[POLLING] problemNonce: 104
+[MINER][1743699027.431] STARTED for pkeyA: 0xf525d3429df6961518054023cdcddb2c9ec7c1e74bda143e6a40fc28bdab76f6
+[POLLING][1743699027.505] Preparing for polling step
+[POLLING[1743699027.637] Obtained State:
+[POLLING] master_nonce: 2958
+[POLLING] privateKeyA: 0xf525d3429df6961518054023cdcddb2c9ec7c1e74bda143e6a40fc28bdab76f6
+[POLLING] difficulty: 0xffffffffffffffffffffffffffffffffffffffff
+[POLLING] problemNonce: 104
+[POLLING][1743699028.005] Preparing for polling step
+[POLLING[1743699028.137] Obtained State:
+[POLLING] master_nonce: 2959
+[POLLING] privateKeyA: 0xf525d3429df6961518054023cdcddb2c9ec7c1e74bda143e6a40fc28bdab76f6
+[POLLING] difficulty: 0xffffffffffffffffffffffffffffffffffffffff
+[POLLING] problemNonce: 104
+[MINER][1743699028.503] Obtained privateKeyB: 0x000062910d76d9576797cb6c093021547e282879724572dad86875799393c108
+[POLLING][1743699028.505] Preparing for polling step
+[MINER][1743699028.509] build and signed tx with tx_hash: 0x81aba77846f686f61391be3d04e15bc32947a76514dc89ef9b16afd2c52f1eb7
+[POLLING[1743699028.641] Obtained State:
+[POLLING] master_nonce: 2959
+[POLLING] privateKeyA: 0xf525d3429df6961518054023cdcddb2c9ec7c1e74bda143e6a40fc28bdab76f6
+[POLLING] difficulty: 0xffffffffffffffffffffffffffffffffffffffff
+[POLLING] problemNonce: 104
+[MINER][1743699028.918] BROADCASTED 0x81aba77846f686f61391be3d04e15bc32947a76514dc89ef9b16afd2c52f1eb7
+[POLLING][1743699029.001] Preparing for polling step
+[MAIN-LOOP][1743699029.011] MINER BROSKIII HAS DIEEDDD
+[MAIN-LOOP][1743699029.011] new problem detected - relaunching MINER
+[MAIN-LOOP] diff: 0xffffffffffffffffffffffffffffffffffffffff
+[MAIN-LOOP] pkey: 0xf525d3429df6961518054023cdcddb2c9ec7c1e74bda143e6a40fc28bdab76f6
+[MAIN-LOOP] problemNonce: 104
+[MAIN-LOOP][1743699029.013] SPAWNED NEW MINER
+[POLLING[1743699029.132] Obtained State:
+[POLLING] master_nonce: 2959
+[POLLING] privateKeyA: 0xf525d3429df6961518054023cdcddb2c9ec7c1e74bda143e6a40fc28bdab76f6
+[POLLING] difficulty: 0xffffffffffffffffffffffffffffffffffffffff
+[POLLING] problemNonce: 104
+[MINER][1743699029.368] STARTED for pkeyA: 0xf525d3429df6961518054023cdcddb2c9ec7c1e74bda143e6a40fc28bdab76f6
+[POLLING][1743699029.501] Preparing for polling step
+[POLLING[1743699029.634] Obtained State:
+[POLLING] master_nonce: 2960
+[POLLING] privateKeyA: 0xf525d3429df6961518054023cdcddb2c9ec7c1e74bda143e6a40fc28bdab76f6
+[POLLING] difficulty: 0xffffffffffffffffffffffffffffffffffffffff
+[POLLING] problemNonce: 104
+[POLLING][1743699030.001] Preparing for polling step
+[POLLING[1743699030.143] Obtained State:
+[POLLING] master_nonce: 2960
+[POLLING] privateKeyA: 0xf525d3429df6961518054023cdcddb2c9ec7c1e74bda143e6a40fc28bdab76f6
+[POLLING] difficulty: 0xffffffffffffffffffffffffffffffffffffffff
+[POLLING] problemNonce: 104
+[MINER][1743699030.440] Obtained privateKeyB: 0x00006f52eef2bc503f35a53a55741e70e2613543067467696f323a40a7d9aee2
+[MINER][1743699030.445] build and signed tx with tx_hash: 0x068d54c4b88a776f2a780874e0e33f505e977739ae7fab2b46a8c80025ac4477
+[POLLING][1743699030.505] Preparing for polling step
+[POLLING[1743699030.637] Obtained State:
+[POLLING] master_nonce: 2960
+[POLLING] privateKeyA: 0xf525d3429df6961518054023cdcddb2c9ec7c1e74bda143e6a40fc28bdab76f6
+[POLLING] difficulty: 0xffffffffffffffffffffffffffffffffffffffff
+[POLLING] problemNonce: 104
+[MINER][1743699030.853] BROADCASTED 0x068d54c4b88a776f2a780874e0e33f505e977739ae7fab2b46a8c80025ac4477
+[MAIN-LOOP][1743699030.946] MINER BROSKIII HAS DIEEDDD
+[MAIN-LOOP][1743699030.946] new problem detected - relaunching MINER
+[MAIN-LOOP] diff: 0xffffffffffffffffffffffffffffffffffffffff
+[MAIN-LOOP] pkey: 0xf525d3429df6961518054023cdcddb2c9ec7c1e74bda143e6a40fc28bdab76f6
+[MAIN-LOOP] problemNonce: 104
+[MAIN-LOOP][1743699030.948] SPAWNED NEW MINER
+[POLLING][1743699031.001] Preparing for polling step
+[POLLING[1743699031.133] Obtained State:
+[POLLING] master_nonce: 2960
+[POLLING] privateKeyA: 0xf525d3429df6961518054023cdcddb2c9ec7c1e74bda143e6a40fc28bdab76f6
+[POLLING] difficulty: 0xffffffffffffffffffffffffffffffffffffffff
+[POLLING] problemNonce: 104
+[MINER][1743699031.301] STARTED for pkeyA: 0xf525d3429df6961518054023cdcddb2c9ec7c1e74bda143e6a40fc28bdab76f6
+[POLLING][1743699031.505] Preparing for polling step
+[POLLING[1743699031.640] Obtained State:
+[POLLING] master_nonce: 2960
+[POLLING] privateKeyA: 0xf525d3429df6961518054023cdcddb2c9ec7c1e74bda143e6a40fc28bdab76f6
+[POLLING] difficulty: 0xffffffffffffffffffffffffffffffffffffffff
+[POLLING] problemNonce: 104
+[POLLING][1743699032.001] Preparing for polling step
+[POLLING[1743699032.138] Obtained State:
+[POLLING] master_nonce: 2961
+[POLLING] privateKeyA: 0xf525d3429df6961518054023cdcddb2c9ec7c1e74bda143e6a40fc28bdab76f6
+[POLLING] difficulty: 0xffffffffffffffffffffffffffffffffffffffff
+[POLLING] problemNonce: 104
+[MINER][1743699032.360] Obtained privateKeyB: 0x00005c60e2b05b234eef93c5cc3ac41c90a5542a23e35600c137fd3ebfed9832
+[MINER][1743699032.366] build and signed tx with tx_hash: 0x4975f357efe5257a0f08d086bc4e7244cf098aa0d393ec5188553e1d4fdc39cc
+[POLLING][1743699032.505] Preparing for polling step
+[POLLING[1743699032.650] Obtained State:
+[POLLING] master_nonce: 2961
+[POLLING] privateKeyA: 0xf525d3429df6961518054023cdcddb2c9ec7c1e74bda143e6a40fc28bdab76f6
+[POLLING] difficulty: 0xffffffffffffffffffffffffffffffffffffffff
+[POLLING] problemNonce: 104
+[MINER][1743699032.775] BROADCASTED 0x4975f357efe5257a0f08d086bc4e7244cf098aa0d393ec5188553e1d4fdc39cc
+[MAIN-LOOP][1743699032.866] MINER BROSKIII HAS DIEEDDD
+[MAIN-LOOP][1743699032.866] new problem detected - relaunching MINER
+[MAIN-LOOP] diff: 0xffffffffffffffffffffffffffffffffffffffff
+[MAIN-LOOP] pkey: 0xf525d3429df6961518054023cdcddb2c9ec7c1e74bda143e6a40fc28bdab76f6
+[MAIN-LOOP] problemNonce: 104
+[MAIN-LOOP][1743699032.869] SPAWNED NEW MINER
+[POLLING][1743699033.002] Preparing for polling step
+[POLLING[1743699033.133] Obtained State:
+[POLLING] master_nonce: 2961
+[POLLING] privateKeyA: 0xf525d3429df6961518054023cdcddb2c9ec7c1e74bda143e6a40fc28bdab76f6
+[POLLING] difficulty: 0xffffffffffffffffffffffffffffffffffffffff
+[POLLING] problemNonce: 104
+[MINER][1743699033.247] STARTED for pkeyA: 0xf525d3429df6961518054023cdcddb2c9ec7c1e74bda143e6a40fc28bdab76f6
+[POLLING][1743699033.505] Preparing for polling step
+[POLLING[1743699033.672] Obtained State:
+[POLLING] master_nonce: 2962
+[POLLING] privateKeyA: 0xf525d3429df6961518054023cdcddb2c9ec7c1e74bda143e6a40fc28bdab76f6
+[POLLING] difficulty: 0xffffffffffffffffffffffffffffffffffffffff
+[POLLING] problemNonce: 104
+[POLLING][1743699034.001] Preparing for polling step
+[POLLING[1743699034.133] Obtained State:
+[POLLING] master_nonce: 2962
+[POLLING] privateKeyA: 0xf525d3429df6961518054023cdcddb2c9ec7c1e74bda143e6a40fc28bdab76f6
+[POLLING] difficulty: 0xffffffffffffffffffffffffffffffffffffffff
+[POLLING] problemNonce: 104
+[MINER][1743699034.318] Obtained privateKeyB: 0x0000829425d7d7e6736f6002d6ab78dfef3d740f2d8031cc944c8b790495b7e0
+[MINER][1743699034.324] build and signed tx with tx_hash: 0xcc753e8d49443836040c23fece63b70aad9cf02f554340b46d308c116b289416
+[POLLING][1743699034.505] Preparing for polling step
+[POLLING[1743699034.639] Obtained State:
+[POLLING] master_nonce: 2962
+[POLLING] privateKeyA: 0xf525d3429df6961518054023cdcddb2c9ec7c1e74bda143e6a40fc28bdab76f6
+[POLLING] difficulty: 0xffffffffffffffffffffffffffffffffffffffff
+[POLLING] problemNonce: 104
+[MINER][1743699034.732] BROADCASTED 0xcc753e8d49443836040c23fece63b70aad9cf02f554340b46d308c116b289416
+[MAIN-LOOP][1743699034.831] MINER BROSKIII HAS DIEEDDD
+[MAIN-LOOP][1743699034.831] new problem detected - relaunching MINER
+[MAIN-LOOP] diff: 0xffffffffffffffffffffffffffffffffffffffff
+[MAIN-LOOP] pkey: 0xf525d3429df6961518054023cdcddb2c9ec7c1e74bda143e6a40fc28bdab76f6
+[MAIN-LOOP] problemNonce: 104
+[MAIN-LOOP][1743699034.833] SPAWNED NEW MINER
+[POLLING][1743699035.003] Preparing for polling step
+[POLLING[1743699035.135] Obtained State:
+[POLLING] master_nonce: 2962
+[POLLING] privateKeyA: 0xf525d3429df6961518054023cdcddb2c9ec7c1e74bda143e6a40fc28bdab76f6
+[POLLING] difficulty: 0xffffffffffffffffffffffffffffffffffffffff
+[POLLING] problemNonce: 104
+[MINER][1743699035.191] STARTED for pkeyA: 0xf525d3429df6961518054023cdcddb2c9ec7c1e74bda143e6a40fc28bdab76f6
+[POLLING][1743699035.505] Preparing for polling step
+[POLLING[1743699035.639] Obtained State:
+[POLLING] master_nonce: 2963
+[POLLING] privateKeyA: 0xf525d3429df6961518054023cdcddb2c9ec7c1e74bda143e6a40fc28bdab76f6
+[POLLING] difficulty: 0xffffffffffffffffffffffffffffffffffffffff
+[POLLING] problemNonce: 104
+[POLLING][1743699036.005] Preparing for polling step
+[POLLING[1743699036.139] Obtained State:
+[POLLING] master_nonce: 2963
+[POLLING] privateKeyA: 0xf525d3429df6961518054023cdcddb2c9ec7c1e74bda143e6a40fc28bdab76f6
+[POLLING] difficulty: 0xffffffffffffffffffffffffffffffffffffffff
+[POLLING] problemNonce: 104
+[MINER][1743699036.260] Obtained privateKeyB: 0x0000e55f7c4fec8b5baf1feaca6f0e0b6e0f733be805ae251b9012417f4d08cf
+[MINER][1743699036.266] build and signed tx with tx_hash: 0xaed0d275b96e8552ffdf2a1e79d531744db28398d5a0c032a4dde86169063223
+[POLLING][1743699036.505] Preparing for polling step
+[POLLING[1743699036.641] Obtained State:
+[POLLING] master_nonce: 2963
+[POLLING] privateKeyA: 0xf525d3429df6961518054023cdcddb2c9ec7c1e74bda143e6a40fc28bdab76f6
+[POLLING] difficulty: 0xffffffffffffffffffffffffffffffffffffffff
+[POLLING] problemNonce: 104
+[MINER][1743699036.676] BROADCASTED 0xaed0d275b96e8552ffdf2a1e79d531744db28398d5a0c032a4dde86169063223
+[MAIN-LOOP][1743699036.766] MINER BROSKIII HAS DIEEDDD
+[MAIN-LOOP][1743699036.766] new problem detected - relaunching MINER
+[MAIN-LOOP] diff: 0xffffffffffffffffffffffffffffffffffffffff
+[MAIN-LOOP] pkey: 0xf525d3429df6961518054023cdcddb2c9ec7c1e74bda143e6a40fc28bdab76f6
+[MAIN-LOOP] problemNonce: 104
+[MAIN-LOOP][1743699036.768] SPAWNED NEW MINER
+[POLLING][1743699037.005] Preparing for polling step
+[MINER][1743699037.134] STARTED for pkeyA: 0xf525d3429df6961518054023cdcddb2c9ec7c1e74bda143e6a40fc28bdab76f6
+[POLLING[1743699037.139] Obtained State:
+[POLLING] master_nonce: 2963
+[POLLING] privateKeyA: 0xf525d3429df6961518054023cdcddb2c9ec7c1e74bda143e6a40fc28bdab76f6
+[POLLING] difficulty: 0xffffffffffffffffffffffffffffffffffffffff
+[POLLING] problemNonce: 104
+[POLLING][1743699037.501] Preparing for polling step
+[POLLING[1743699037.666] Obtained State:
+[POLLING] master_nonce: 2964
+[POLLING] privateKeyA: 0xf525d3429df6961518054023cdcddb2c9ec7c1e74bda143e6a40fc28bdab76f6
+[POLLING] difficulty: 0xffffffffffffffffffffffffffffffffffffffff
+[POLLING] problemNonce: 104
+[POLLING][1743699038.005] Preparing for polling step

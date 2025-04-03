@@ -7,10 +7,12 @@ from config import *
         explain more .env logic 
         AND create simple wallet create & walkthough
 
-        5. Mac Os build with script identifying LD FLAGS, etc. And installing dependencies (possibly) 
-        n. simple onboarding flow
-        n+1. simple testing flow
-        n+2. all changes --> explain them in readme
+        5. Mac Os build with script identifying LD FLAGS, etc. And installing dependencies (possibly) [POSTPONED] 
+        n. simple onboarding flow [POSTPONED]
+        n+1. simple testing flow [done]
+        n+2. all changes --> explain them in readme [WIP]
+
+        ADD WALLET STATS
 
 """
 
