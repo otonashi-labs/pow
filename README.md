@@ -70,6 +70,9 @@ There are **three** common ways to build on Linux:
    # Configure OpenCL ICD for NVIDIA
    # mkdir -p /etc/OpenCL/vendors && echo "libnvidia-opencl.so.1" > /etc/OpenCL/vendors/nvidia.icd
 
+   # test that OpenCL is indeed working under the hood
+   python3 test_opencl_kernel.py 
+
    # mine (but please do some setup first and congrats if this option succeded 🎉)
    python3 mine_infinity.py
 ```
@@ -91,6 +94,9 @@ However, there might be platform specific issues.  If experiencing any trouble w
     # all repository files will be already there
     cd /app
 
+    # test that OpenCL is indeed working under the hood
+    python3 test_opencl_kernel.py 
+
     # mine (but please do some setup first)
     python3 mine_infinity.py
  ```
@@ -103,10 +109,13 @@ Inside the container you’ll find the compiled `magicXorMiner.so` in /app.
 ```
 Then run:
 ```bash
-    docker run --gpus all -it devoak/magic-xor-miner:nvidia-latest /bin/bash
+    docker run --gpus all -it devoak/magic-xor-miner:nvidia-latest-stats /bin/bash
 
     cd /app
 
+    # test that OpenCL is indeed working under the hood
+    python3 test_opencl_kernel.py 
+    
     # mine (but please do some setup first)
     python3 mine_infinity.py
 
@@ -196,7 +205,6 @@ INVERSE_SIZE = 255                # how many modular inversions per work item
 INVERSE_MULTIPLE = 1024           # how many parallel items to run
 PROFANITY2_VERBOSE_FLAG = False   # do you want profanity2 working logs?
 MINER_VERBOSE_FLAG = True         # don't toggle these both to True -- they will mix, one at a time please
-
 ```
 
 ---
