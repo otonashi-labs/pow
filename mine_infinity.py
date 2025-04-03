@@ -1,24 +1,4 @@
-from ecdsa import SigningKey, SECP256k1
-import magicXorMiner
-from web3 import Web3
-from eth_account.messages import encode_defunct
-from eth_account import Account
-import json
-import requests
-import sha3 # pip install safe-pysha3
-import time
-import coincurve
-from eth_account.messages import defunct_hash_message
-import multiprocessing
-import random
-import copy
-from eth_abi import decode  
-from websocket import create_connection  
-import threading
-import queue
-import math
-from dotenv import load_dotenv
-import os
+from config import *
 
 """
     TODO:
@@ -26,69 +6,32 @@ import os
 
         explain more .env logic 
         AND create simple wallet create & walkthough
+
+        5. Mac Os build with script identifying LD FLAGS, etc. And installing dependencies (possibly) 
+        n. simple onboarding flow
+        n+1. simple testing flow
+        n+2. all changes --> explain them in readme
+
 """
 
 """
     VALUABLES!!!
 """
 load_dotenv() 
-# you could optionally choose a different address for the rewards
 MASTER_ADDRESS = os.getenv("MASTER_ADDRESS")
 MASTER_PKEY = os.getenv("MASTER_PKEY")
 REWARDS_RECIPIENT_ADDRESS = os.getenv("REWARDS_RECIPIENT_ADDRESS")
-
-"""
-    CONFIG & TUNING
-"""
-
-# chain specific details
 INFINITY_RPC = os.getenv("INFINITY_RPC") 
 INFINITY_WS = os.getenv("INFINITY_WS") 
 
-CHAIN_ID = 57054
 
-POW_CONTRACT = "0x8888FF459Da48e5c9883f893fc8653c8E55F8888"
-POW_NEW_PROBLEM_TOPIC0 = "0xa100d84256eafde4f67167e266005a7b734f135b1ba16dd349e2469a81d05c47"
-PROBLEM_SELECTOR = "0x88f116d0"
-GAS_LIMIT_SUBMIT = 2_000_000
-
-# be creative, pick your own data, don't make it too long though,
-# code will compulsory fail if len(SIGN_DATA) > 32
-# so, keep that in mind
-SIGN_DATA = bytes.fromhex("deadbeef1337cafebabe")
-
-# [TX-BUILDER] feel free to tune it
-MAX_PRIORITY_FEE_MWEI = 500
-BASE_FEE_K = 2
-
-# [MINER] Mining params section:
-# feel free to tweak this parameters until it works the best for you
-# original profanity2 params are mirrored here: https://github.com/1inch/profanity2
 """
-TOONING 
-
-Tweaking:
-    -w, --work <size>       Set OpenCL local work size. [default = 64]
-    -W, --work-max <size>   Set OpenCL maximum work size. [default = -i * -I]
-    -i, --inverse-size      Set size of modular inverses to calculate in one
-                            work item. [default = 255]
-    -I, --inverse-multiple  Set how many above work items will run in
-                            parallell. [default = 16384]
+    Global variables for multithreading, etc.
 """
-WORKSIZE_LOCAL = 64
-WORKSIZE_MAX = 0  # 0 means default
-INVERSE_SIZE = 255
-INVERSE_MULTIPLE = 1024 
-PROFANITY2_VERBOSE_FLAG = False  # do you want profanity2 working logs?
-MINER_VERBOSE_FLAG = True # don't toggle these both to True -- they will mix, one at a time please
-
-
-
 PROBLEMS_QUEUE = queue.Queue()
 POLL_RESULTS_QUEUE = queue.Queue()
 WEB3_IDLE_PROVIDER = Web3()
 SESSION = requests.Session()
-
 
 
 """
@@ -323,7 +266,7 @@ def mine_wagmi_magic_xor(
     )
 
     if "FAIL" in result:
-        print("[PROFANITY2] generation failed")
+        logging.warning("[PROFANITY2] generation failed")
         return None
     else:
         return "0x" + result
@@ -486,7 +429,7 @@ def broadcast_signed_txs(raw_signed_txs):
 
 
 
-def mine_and_submit(el_problemo, chain_data_latest):
+def mine_and_submit(el_problemo, chain_data_latest, queue):
     """
     Called in a separate process.  
     1) Perform GPU-based mine_wagmi_magic_xor(...)  
@@ -494,7 +437,7 @@ def mine_and_submit(el_problemo, chain_data_latest):
     """
     try:
         if (MINER_VERBOSE_FLAG):
-            print(f"[MINER][{time.time():.3f}] STARTED for pkeyA: {el_problemo['privateKeyA']}")
+            logging.info(f"[MINER][{time.time():.3f}] STARTED for pkeyA: {el_problemo['privateKeyA']}")
 
         private_key_b = mine_wagmi_magic_xor(
             strPublicKey = get_secp256k1_pub(el_problemo["privateKeyA"][2:]),
@@ -502,7 +445,7 @@ def mine_and_submit(el_problemo, chain_data_latest):
         )
 
         if (MINER_VERBOSE_FLAG):
-            print(f"[MINER][{time.time():.3f}] Obtained privateKeyB: {private_key_b}")
+            logging.info(f"[MINER][{time.time():.3f}] Obtained privateKeyB: {private_key_b}")
 
         # submit the result
         tx = build_submit_tx_fast(
@@ -518,15 +461,36 @@ def mine_and_submit(el_problemo, chain_data_latest):
         signed_tx = create_raw_signed_tx(tx, MASTER_PKEY)
 
         if (MINER_VERBOSE_FLAG):
-            print(f"[MINER][{time.time():.3f}] build and signed tx with tx_hash: {signed_tx['tx_hash']}")
+            logging.info(f"[MINER][{time.time():.3f}] build and signed tx with tx_hash: {signed_tx['tx_hash']}")
 
-        broadcast_signed_txs([signed_tx])
+        response = broadcast_signed_txs([signed_tx])
+
+        miner_return_status = {}
+
+        if response.status_code == 200:
+            miner_return_status["request_status"] = "OK"
+        else:
+            miner_return_status["request_status"] = "FAIL"
+
+        result = json.loads(response.text)[0]
+        if "error" in result:
+            miner_return_status["tx_status"] = "FAIL"
+            miner_return_status["payload"] = result["error"]
+        
+        if "result" in result:
+            miner_return_status["tx_status"] = "OK"
+            miner_return_status["payload"] = result["result"]
+
+
+        # print(miner_return_status)
+        # now we need to put tx into the queue
+        queue.put(miner_return_status)
+
         if (MINER_VERBOSE_FLAG):
-            print(f"[MINER][{time.time():.3f}] BROADCASTED")
-            print()
+            logging.info(f"[MINER][{time.time():.3f}] BROADCASTED {signed_tx['tx_hash']}")  
 
     except Exception as e:
-        print("[MINER] Exception in miner process:", e)
+        logging.warning("[MINER] Exception in miner process:" + str(e))
 
 
 """
@@ -554,7 +518,7 @@ def listen_for_problems(ws_url, contract_address, event_topic):
 
     sub_reply = ws.recv()
     if (True):
-        print(f"[WS-LISTENER][{time.time():.3f}] Subscribed. Reply: {sub_reply}")
+        logging.info(f"[WS-LISTENER][{time.time():.3f}] Subscribed. Reply: {sub_reply}")
 
     while True:
         raw_message = ws.recv() 
@@ -577,11 +541,11 @@ def listen_for_problems(ws_url, contract_address, event_topic):
         privateKeyA_hex = "0x" + format(pkey_A, "x")
 
         if (MINER_VERBOSE_FLAG):
-            print(f"[WS-LISTENER][{time.time():.3f}] NewProblem Detected")
-            print(f"[WS-LISTENER] difficulty: {difficulty_hex}")
-            print(f"[WS-LISTENER] privateKeyA_hex: {privateKeyA_hex}")
-            print(f"[WS-LISTENER] problemNonce: {problem_nonce}")
-            print()
+            logging.info(f"[WS-LISTENER][{time.time():.3f}] NewProblem Detected")
+            logging.info(f"[WS-LISTENER] difficulty: {difficulty_hex}")
+            logging.info(f"[WS-LISTENER] privateKeyA_hex: {privateKeyA_hex}")
+            logging.info(f"[WS-LISTENER] problemNonce: {problem_nonce}")
+             
 
         new_problem = {
             "difficulty": difficulty_hex,
@@ -604,10 +568,13 @@ def sleep_to_next_multiple(step_s):
     [STATE-LOADER]
 """
 def poll_state_periodically(poll_interval=0.5):
+    global SESSION
+    session_update_counter = 0
     while True:
         try:
+            session_update_counter += 1
             if (MINER_VERBOSE_FLAG):
-                print(f"[POLLING][{time.time():.3f}] Preparing for polling step")
+                logging.info(f"[POLLING][{time.time():.3f}] Preparing for polling step")
 
             polled_data = get_essential_state_multicall(
                 master_address = MASTER_ADDRESS,
@@ -615,19 +582,115 @@ def poll_state_periodically(poll_interval=0.5):
             )
 
             if (MINER_VERBOSE_FLAG):
-                print(f"[POLLING[{time.time():.3f}] Obtained State:")
-                print(f"[POLLING] master_nonce: {polled_data['master_nonce']}")
-                print(f"[POLLING] privateKeyA: {polled_data['privateKeyA']}")
-                print(f"[POLLING] difficulty: {polled_data['difficulty']}")
-                print(f"[POLLING] problemNonce: {polled_data['problemNonce']}")
-                print()
+                logging.info(f"[POLLING[{time.time():.3f}] Obtained State:")
+                logging.info(f"[POLLING] master_nonce: {polled_data['master_nonce']}")
+                logging.info(f"[POLLING] privateKeyA: {polled_data['privateKeyA']}")
+                logging.info(f"[POLLING] difficulty: {polled_data['difficulty']}")
+                logging.info(f"[POLLING] problemNonce: {polled_data['problemNonce']}")
+                 
 
             if polled_data and polled_data["master_nonce"] != None:
                 POLL_RESULTS_QUEUE.put(polled_data) 
+
+            # refresh session since it could hang sometimes
+            if session_update_counter == SESSION_UPATE_STEPS:
+                SESSION = requests.Session()
+                if (MINER_VERBOSE_FLAG):
+                    logging.info(f"[POLLING[{time.time():.3f}] SESSION refreshed!")
+
         except Exception as e:
-            print("[POLLING] Exception during polling:", e)
+            logging.warning("[POLLING] Exception during polling:" + str(e))
 
         sleep_to_next_multiple(poll_interval)
+
+
+def _diff_to_iter(hex_string):
+    hex_string = hex_string[2:]
+    leading_zeros = 0
+    for c in hex_string:
+        if c == '0':
+            leading_zeros += 1
+        else:
+            break
+
+    # If all 40 characters are '0', there's no non-zero character
+    if leading_zeros == 40:
+        first_non_zero = None
+    else:
+        first_non_zero = int("0x" + hex_string[leading_zeros], 16)
+
+    iters = 16**(leading_zeros) * 16**((0xf - first_non_zero) / 0xf)
+
+    if iters < 1_000_000:
+        return str(int(iters))
+    elif iters < 1_000_000_000:
+        return f"{iters / 1_000_000:.2f} M"
+    else:
+        return f"{iters / 1_000_000_000:.2f} B"
+"""
+    Print all stats in CLI
+    and refresh them in semi-real-time
+"""
+MINING_STATS = {
+    "tx_ok" : 0,
+    "epochs_elapsed" : -1,
+    "last_epoch" : None,
+    "curr_sub_per_epoch" : 0,
+    "sub_per_epoch_arr" : [],
+    "last_tx_hash" : None
+}
+
+def versobse_stats(
+        last_poll_data,
+        last_problem,
+        last_miner_state
+    ):
+    global MINING_STATS
+
+    if last_miner_state and last_miner_state["tx_status"] == "OK" and last_miner_state["payload"] != MINING_STATS["last_tx_hash"]:
+        MINING_STATS["last_tx_hash"] = last_miner_state["payload"]
+        MINING_STATS["tx_ok"] += 1
+        MINING_STATS["curr_sub_per_epoch"] += 1
+
+    if last_poll_data and last_poll_data["problemNonce"] != MINING_STATS["last_epoch"]:
+        if MINING_STATS["last_epoch"] != None:
+            MINING_STATS["sub_per_epoch_arr"].append(MINING_STATS["curr_sub_per_epoch"])
+            MINING_STATS["curr_sub_per_epoch"] = 0
+
+        MINING_STATS["last_epoch"] = last_poll_data["problemNonce"]
+        MINING_STATS["epochs_elapsed"] += 1
+
+    if len(MINING_STATS["sub_per_epoch_arr"]) != 0:
+        avg_share_per_epoc = f'{sum(MINING_STATS["sub_per_epoch_arr"]) / len(MINING_STATS["sub_per_epoch_arr"]):.2f} sub per epoch'
+    else:
+        avg_share_per_epoc = f'{MINING_STATS["curr_sub_per_epoch"]} sub per epoch'
+
+    sys.stdout.write("\x1b[10A")
+
+    line1 = f"           [STATS at {time.time():.3f}]"
+    line2 = f"[PKEYA] {last_problem['privateKeyA']}"
+    line3 = f"[DIFFICULTY] {last_problem['difficulty']}" 
+    line4 = f"[DIFF-ITER] {_diff_to_iter(last_problem['difficulty'])} steps on average to find solution"
+    line5 = f"[PROBLEM EPOCH] {last_problem['problemNonce']}"
+    line6 = f""
+    line7 = f"            [MINER STATS]"
+    line8 = f"[TX SENT]  {MINING_STATS['tx_ok']}   [EPOCHS ELAPSED]  {MINING_STATS['epochs_elapsed']}  "
+    line9 = f"[CURRENT EPOCH SUB] {MINING_STATS['curr_sub_per_epoch']}    [AVG SUB PER EPOCH] {avg_share_per_epoc}"
+    line10 = f"[LAST TX HASH] {last_miner_state['payload'] if last_miner_state else 'NaN'}"
+    
+
+    print(line1)
+    print(line2)
+    print(line3)
+    print(line4)
+    print(line5)
+    print(line6)
+    print(line7)
+    print(line8)
+    print(line9)
+    print(line10)
+
+    sys.stdout.flush()
 
 
 """
@@ -645,8 +708,8 @@ def poll_state_periodically(poll_interval=0.5):
         Consired restarting logic if miner is dead
 """
 def main_loop():
-
     manager = multiprocessing.Manager()
+    miner_queue = multiprocessing.Queue()
     chain_data_latest = manager.dict()
     chain_data_latest["master_nonce"] = 0
     chain_data_latest["eth_feeHistory"] = {}
@@ -654,13 +717,21 @@ def main_loop():
     current_miner_process = None
     last_poll_data = None 
     last_problem = None
+    last_miner_state = None
     pkey_in_work = None
     actually_latest_pkey = None
 
+    refresh_cli_counter = 0
+
+    # for cli refreshing stats
+    for _ in range(10):
+        print()
+
     if (MINER_VERBOSE_FLAG):
-        print(f"[MAIN-LOOP][{time.time():.3f}] STARTING")
+        logging.info(f"[MAIN-LOOP][{time.time():.3f}] STARTING")
 
     while True:
+        refresh_cli_counter += 1
         while not POLL_RESULTS_QUEUE.empty():
             last_poll_data = POLL_RESULTS_QUEUE.get()
 
@@ -672,9 +743,6 @@ def main_loop():
                     "problemNonce" : last_poll_data["problemNonce"]
                 }
 
-            if (MINER_VERBOSE_FLAG):
-                print(f"[MAIN-LOOP][{time.time():.3f}] got polling update")
-
             # submit part in mine_and_submit will take the latest state from here
             chain_data_latest["master_nonce"] = last_poll_data["master_nonce"]
             chain_data_latest["eth_feeHistory"] = last_poll_data["eth_feeHistory"]
@@ -682,7 +750,7 @@ def main_loop():
         while not PROBLEMS_QUEUE.empty():
             last_problem = PROBLEMS_QUEUE.get() 
             if (MINER_VERBOSE_FLAG):
-                print(f"[MAIN-LOOP][{time.time():.3f}] got websockets update")
+                logging.info(f"[MAIN-LOOP][{time.time():.3f}] got websockets update")
 
         """
             Safety check for situations where:
@@ -699,23 +767,24 @@ def main_loop():
                 if (last_poll_data["privateKeyA"] != pkey_in_work):
                     actually_latest_pkey = last_poll_data["privateKeyA"]
                     last_problem["privateKeyA"] = last_poll_data["privateKeyA"]
+                    last_problem["problemNonce"] = last_poll_data["problemNonce"]
                 else:
                     last_poll_data["privateKeyA"] = last_problem["privateKeyA"]
-
+                    last_poll_data["problemNonce"] = last_problem["problemNonce"]
         """
             Check on our mate - miner
         """
         if current_miner_process and not current_miner_process.is_alive():
             pkey_in_work = None  
             if MINER_VERBOSE_FLAG:
-                print(f"[MAIN-LOOP][{time.time():.3f}] MINER BROSKIII HAS DIEEDDD")
+                logging.info(f"[MAIN-LOOP][{time.time():.3f}] MINER BROSKIII HAS DIEEDDD")
 
         if ((last_poll_data and last_problem) and (actually_latest_pkey != pkey_in_work)):
             if (MINER_VERBOSE_FLAG):
-                print(f"[MAIN-LOOP][{time.time():.3f}] new problem detected - relaunching MINER")
-                print(f"[MAIN-LOOP] diff: {last_problem['difficulty']}")
-                print(f"[MAIN-LOOP] pkey: {actually_latest_pkey}")
-                print(f"[MAIN-LOOP] problemNonce: {last_problem['problemNonce']}")
+                logging.info(f"[MAIN-LOOP][{time.time():.3f}] new problem detected - relaunching MINER")
+                logging.info(f"[MAIN-LOOP] diff: {last_problem['difficulty']}")
+                logging.info(f"[MAIN-LOOP] pkey: {actually_latest_pkey}")
+                logging.info(f"[MAIN-LOOP] problemNonce: {last_problem['problemNonce']}")
 
             el_problemo = {
                 "privateKeyA":    actually_latest_pkey,
@@ -726,18 +795,28 @@ def main_loop():
                 current_miner_process.terminate()
                 current_miner_process.join()
                 if MINER_VERBOSE_FLAG:
-                    print(f"[MAIN-LOOP][{time.time():.3f}] KILLED OLD MINER")
+                    logging.info(f"[MAIN-LOOP][{time.time():.3f}] KILLED OLD MINER")
 
             current_miner_process = multiprocessing.Process(
                 target=mine_and_submit,
-                args=(el_problemo, chain_data_latest),
+                args=(el_problemo, chain_data_latest, miner_queue),
             )
             current_miner_process.start()
 
             if MINER_VERBOSE_FLAG:
-                print(f"[MAIN-LOOP][{time.time():.3f}] SPAWNED NEW MINER")
+                logging.info(f"[MAIN-LOOP][{time.time():.3f}] SPAWNED NEW MINER")
 
             pkey_in_work = actually_latest_pkey
+
+        # alrightm it is about time to get mining status and display it to cli
+        while not miner_queue.empty():
+            last_miner_state = miner_queue.get_nowait() 
+        
+        # flush state once a second
+        if (refresh_cli_counter == REFRESH_CLI_RATE):
+            refresh_cli_counter = 0
+            versobse_stats(last_poll_data,last_problem,last_miner_state)
+            
 
         sleep_to_next_multiple(0.005)
         
