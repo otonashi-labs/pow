@@ -5,3 +5,4 @@ cache-opencl.*
 bin
 .DS_Store
 __pycache__
+mine_infinity.log

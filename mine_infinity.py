@@ -10,7 +10,6 @@ REWARDS_RECIPIENT_ADDRESS = os.getenv("REWARDS_RECIPIENT_ADDRESS")
 INFINITY_RPC = os.getenv("INFINITY_RPC") 
 INFINITY_WS = os.getenv("INFINITY_WS") 
 
-
 """
     Global variables for multithreading, etc.
 """
@@ -18,7 +17,6 @@ PROBLEMS_QUEUE = queue.Queue()
 POLL_RESULTS_QUEUE = queue.Queue()
 WEB3_IDLE_PROVIDER = Web3()
 SESSION = requests.Session()
-
 
 """
     [UTILS]
