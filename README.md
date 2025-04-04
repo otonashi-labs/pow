@@ -34,7 +34,9 @@ The code includes two Makefiles:
 There are **three** common ways to build on Linux:
 
 1. **Hardcore:** Bare-metal installation:
-<details Hardcore Build>
+<details>
+<summary>Hardcore version</summary>
+
     ```bash
    # Install dependencies, for example on Ubuntu:
    sudo apt-get update && sudo apt-get install -y \
@@ -64,6 +66,7 @@ This will likely produce `magicXorMiner.so`, with high probability.
 However, there might be platform specific issues.  If experiencing any trouble with installing all of the dependancies -- please consider Docker build. 
 
 **THIS IS THE HARDCORE BUILD VERSION**
+
 </details>
 
 
