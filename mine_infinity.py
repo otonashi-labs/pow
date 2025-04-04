@@ -716,7 +716,7 @@ def versobse_stats(
     lines.append(f"[MINER ADDRESS]       {MASTER_ADDRESS}")
     lines.append(f"[REWARDS ADDRESS]     {REWARDS_RECIPIENT_ADDRESS}")
     lines.append(f"[LAST TX HASH]        {last_miner_state['payload'] if last_miner_state else 'NaN'}")
-    lines.append(f"Press Cntrl + C to stop")
+    lines.append(f"Press Cntrl + C to stop mining")
     
 
     for line in lines:
