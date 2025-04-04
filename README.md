@@ -111,41 +111,32 @@ The container already includes everything needed.
 
 **NOTE: Ensure your Docker runtime and driver stack are set up to allow GPU access.**
 
-### 2.3 [WIP] macOS Build [WIP]
+### 1.3 macOS Build
 
 macOS support is tested primarily on Apple Silicon (M1/M2). Adjust paths and frameworks for your environment.
-
-Within Makefile.mac, you’ll see:
-
-```makefile
-    CC = g++
-
-    CDEFINES = -I/opt/homebrew/lib/python3.11/site-packages/pybind11/include
-    CDEFINES += -I/opt/homebrew/opt/python@3.11/Frameworks/Python.framework/Versions/3.11/include/python3.11
-
-    LDFLAGS = -framework OpenCL \
-            -L/opt/homebrew/opt/python@3.11/Frameworks/Python.framework/Versions/3.11/lib \
-            -lpython3.11
-
-```
-You must confirm the include/linker paths match where your Python 3.11 and pybind11 are installed. 
-Commonly:
-1.  Headers live in `/opt/homebrew/lib/python3.11/site-packages/pybind11/include`
-2.  Python 3.11 frameworks in `/opt/homebrew/opt/python@3.11/Frameworks/Python.framework/Versions/3.11`
 
 To build:
 ```bash
     git clone https://github.com/otonashi-labs/pow.git
     cd pow
-    ./find_mac_includes.sh
-    make -f Makefile.mac clean && make -f Makefile.mac && make -f Makefile.mac clean
+    chmod +x build_mac.sh
+    ./build_mac.sh
+
+    # pay attention to any possible Error messages, ideally you will NOT get any
+    # warning messages are OKAY
+
+    # test that OpenCL is indeed working under the hood and that the build is succesefull
+    python3 test_opencl_kernel.py 
+    
+    # mine (but please do some setup first)
+    python3 mine_infinity.py
 ```
 
 This should produce `magicXorMiner.so.`
 
 **NOTE: This is the only way to launch miner on MacOs. Docker build DOES NOT work on Mac Os.**
 
-### 2.4 Hosting on Vast.ai [WIP]
+### 2.4 Hosting on Vast.ai
 
 If you don’t have a local GPU, you can deploy your build (or the prebuilt Docker image) onto Vast.ai. While renting a machine with GPU support, upload/pull the container and run the same steps (create your own template there to do that).
 
