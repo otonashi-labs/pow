@@ -31,8 +31,6 @@ This miner is a heavily optimized software, hence it is quite picky dependencies
 
 ### 1.1 Linux Build
 
-There are **three** common ways to build on Linux:
-
 1. **Recommended:** Build with Docker, using the provided Dockerfile:
 ```bash
     # build
@@ -46,6 +44,12 @@ There are **three** common ways to build on Linux:
 
     # test that OpenCL is indeed working under the hood
     python3 test_opencl_kernel.py 
+
+    # Fill your miner address details & rpc details
+    nano .env.example 
+
+    # Move it to the .env
+    mv .env.example .env
 
     # mine (but please do some setup first)
     python3 mine_infinity.py
@@ -65,6 +69,12 @@ Then run:
 
     # test that OpenCL is indeed working under the hood
     python3 test_opencl_kernel.py 
+
+    # Fill your miner address details & rpc details
+    nano .env.example 
+
+    # Move it to the .env
+    mv .env.example .env
     
     # mine (but please do some setup first)
     python3 mine_infinity.py
@@ -98,11 +108,17 @@ The container already includes everything needed.
    # test that OpenCL is indeed working under the hood
    python3 test_opencl_kernel.py 
 
+    # Fill your miner address details & rpc details
+    nano .env.example 
+
+    # Move it to the .env
+    mv .env.example .env
+
    # mine (but please do some setup first and congrats if this option succeded 🎉)
    python3 mine_infinity.py
 ```
 
-This will likely produce `magicXorMiner.so`, with high probability.
+This will produce `magicXorMiner.so`, with quite high probability.
 
 However, there might be platform specific issues.  If experiencing any trouble with installing all of the dependancies -- please consider Docker build. 
 
@@ -127,6 +143,12 @@ To build:
 
     # test that OpenCL is indeed working under the hood and that the build is succesefull
     python3 test_opencl_kernel.py 
+
+    # Fill your miner address details & rpc details
+    nano .env.example 
+
+    # Move it to the .env
+    mv .env.example .env
     
     # mine (but please do some setup first)
     python3 mine_infinity.py
@@ -141,19 +163,39 @@ If you don’t have a local GPU, you can deploy your build (or the prebuilt Dock
 ---
 
 ## 2. Usage
-1.	Edit `.env.example` with your actual Infinity addresses/keys:
 
-`MASTER_ADDRESS` and `MASTER_PKEY` (the wallet that pays gas and signs solutions).
+In order to use this miner you will need to provide it with your mining wallet, and sonic blockchain connection details.
 
-`REWARDS_RECIPIENT_ADDRESS` (where your miner’s block rewards go).
+In order to do that - Let's take a closer look at env.example
 
-`INFINITY_RPC` and `INFINITY_WS` - Sonic blockchain connections (you can use default ones as well)
+```bash
+# .env
 
-2.	Rename to `.env` or export those variables in your environment.
+# Valuables!
+MASTER_ADDRESS = <PASTE_YOUR_ADDRESS_HERE>
+MASTER_PKEY = <PASTE_YOUR_PRIVATE_KEY_HERE>
+REWARDS_RECIPIENT_ADDRESS = <PASTE_YOUR_ADDREDD_HERE>
 
-*NOTE: `nano .env.example` and do all the changes inside; then `mv .env.example .env` will do the job*
 
-3.	Run the miner: `python3 mine_infinity.py`, which:
+# RPCs
+# if you dont know what is it - just leave it this way
+INFINITY_RPC = https://rpc.blaze.soniclabs.com
+INFINITY_WS = wss://rpc.blaze.soniclabs.com
+
+```
+Alright, in order to mine you need to have **mining wallet** with sonic balance there in order to cover gas expenses. 
+We would reccomend you to use a separate wallet for mining. Ideally - create new wallet, top up it with some Sonic tokens and use it for mining. 
+
+For secutiry purposes we have added an option to add a distinct **rewards wallet** - it is the wallet that will receive mining rewards in a form of Infinity tokens. This could be you any wallet, just make sure that you have an access to it. You can use **mining wallet** address in order to receive rewards, as you wish. But keep in mind that you can use other wallet as well!
+
+
+So, in recap:
+`MASTER_ADDRESS` is an address of your **mining wallet**
+`MASTER_PKEY` is a private key of your **mining wallet** (you can export it from Metamask / Zerion)
+`REWARDS_RECIPIENT_ADDRESS` is an addredd of your **rewards wallet**
+
+Now, rpc's. If you have something like Alchemy / Infura - just take their connection URL for both `https` and `ws` and paste them. If you don't have them - no worries! You can use default connection links.
+
 
 Security Warning
 **This code is not designed with heavy security in mind; it’s best practice to use a dedicated wallet for mining with minimal funds.**
