@@ -9,7 +9,8 @@ A **heavily optimized** OpenCL miner for solving the [Infinity Token](https://gi
 
 ## 1. Installation
 
-### 1.1 Dependencies & Platforms & Notes
+<details>
+    <summary>Dependencies & Platforms & Notes</summary>
 
 This miner is a heavily optimized software, hence it is quite picky dependencies-wise. Please make sure you have all the necessary dependancies installed and working together.
 
@@ -25,15 +26,55 @@ This miner is a heavily optimized software, hence it is quite picky dependencies
 
 > **Tested** primarily on Linux (NVIDIA GPUs) and Apple Silicon. Other platforms *may* work but are not guaranteed.
 
-The code includes two Makefiles:
-- `Makefile` for **Linux**
-- `Makefile.mac` for **macOS**  
+</details>
 
-### 1.2 Linux Build
+
+### 1.1 Linux Build
 
 There are **three** common ways to build on Linux:
 
-1. **Hardcore:** Bare-metal installation:
+1. **Recommended:** Build with Docker, using the provided Dockerfile:
+```bash
+    # build
+    docker build -t infinity-gpu-miner .
+    
+    # Then run with GPU passthrough (e.g. NVIDIA Docker setup):
+    docker run --gpus all -it infinity-gpu-miner /bin/bash
+
+    # all repository files will be already there
+    cd /app
+
+    # test that OpenCL is indeed working under the hood
+    python3 test_opencl_kernel.py 
+
+    # mine (but please do some setup first)
+    python3 mine_infinity.py
+ ```
+
+Inside the container you’ll find the compiled `magicXorMiner.so` in /app.
+
+2. **Simplest Possible:** Pull prebuilt container from Docker Hub:
+```bash
+    docker pull devoak/magic-xor-miner:nvidia-latest
+```
+Then run:
+```bash
+    docker run --gpus all -it devoak/magic-xor-miner:nvidia-latest-stats /bin/bash
+
+    cd /app
+
+    # test that OpenCL is indeed working under the hood
+    python3 test_opencl_kernel.py 
+    
+    # mine (but please do some setup first)
+    python3 mine_infinity.py
+
+```
+The container already includes everything needed.
+
+**NOTE: Ensure your Docker runtime and driver stack are set up to allow GPU access.**
+
+3. **Hardcore:** Bare-metal installation:
 <details>
     <summary>Hardcore version</summary>
 
@@ -70,48 +111,7 @@ However, there might be platform specific issues.  If experiencing any trouble w
 </details>
 
 
-2. **Recommended:** Build with Docker, using the provided Dockerfile:
-```bash
-    # build
-    docker build -t infinity-gpu-miner .
-    
-    # Then run with GPU passthrough (e.g. NVIDIA Docker setup):
-    docker run --gpus all -it infinity-gpu-miner /bin/bash
-
-    # all repository files will be already there
-    cd /app
-
-    # test that OpenCL is indeed working under the hood
-    python3 test_opencl_kernel.py 
-
-    # mine (but please do some setup first)
-    python3 mine_infinity.py
- ```
-
-Inside the container you’ll find the compiled `magicXorMiner.so` in /app.
-
-3. **Simplest Possible:** Pull prebuilt container from Docker Hub:
-```bash
-    docker pull devoak/magic-xor-miner:nvidia-latest
-```
-Then run:
-```bash
-    docker run --gpus all -it devoak/magic-xor-miner:nvidia-latest-stats /bin/bash
-
-    cd /app
-
-    # test that OpenCL is indeed working under the hood
-    python3 test_opencl_kernel.py 
-    
-    # mine (but please do some setup first)
-    python3 mine_infinity.py
-
-```
-The container already includes everything needed.
-
-**NOTE: Ensure your Docker runtime and driver stack are set up to allow GPU access.**
-
-### 1.3 macOS Build
+### 1.2 macOS Build
 
 macOS support is tested primarily on Apple Silicon (M1/M2). Adjust paths and frameworks for your environment.
 
@@ -132,11 +132,9 @@ To build:
     python3 mine_infinity.py
 ```
 
-This should produce `magicXorMiner.so.`
-
 **NOTE: This is the only way to launch miner on MacOs. Docker build DOES NOT work on Mac Os.**
 
-### 1.4 Hosting on Vast.ai
+### 1.3 Hosting on Vast.ai
 
 If you don’t have a local GPU, you can deploy your build (or the prebuilt Docker image) onto Vast.ai. While renting a machine with GPU support, upload/pull the container and run the same steps (create your own template there to do that).
 
