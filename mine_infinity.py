@@ -650,7 +650,8 @@ MINING_STATS = {
     "last_inf_balance" : None,
     "last_inf_speed" : "NaN",
     "last_sonic_balance" : None,
-    "last_sonic_speed" : "NaN"
+    "last_sonic_speed" : "NaN",
+    "last_tx_hash" : "NaN"
 }
 
 def versobse_stats(
@@ -677,9 +678,10 @@ def versobse_stats(
         MINING_STATS["last_sonic_speed"] = f"{delta_sonic:.2f}"
 
     if last_miner_state and last_miner_state["tx_status"] == "OK" and last_miner_state["payload"] != MINING_STATS["last_tx_hash"]:
-        MINING_STATS["last_tx_hash"] = last_miner_state["payload"]
-        MINING_STATS["tx_ok"] += 1
-        MINING_STATS["curr_sub_per_epoch"] += 1
+        if "0x" in last_miner_state["payload"]:
+            MINING_STATS["last_tx_hash"] = last_miner_state["payload"]
+            MINING_STATS["tx_ok"] += 1
+            MINING_STATS["curr_sub_per_epoch"] += 1
 
     if last_poll_data and last_poll_data["problemNonce"] != MINING_STATS["last_epoch"]:
         if MINING_STATS["last_epoch"] != None:
@@ -715,7 +717,7 @@ def versobse_stats(
     lines.append(f"")
     lines.append(f"[MINER ADDRESS]       {MASTER_ADDRESS}")
     lines.append(f"[REWARDS ADDRESS]     {REWARDS_RECIPIENT_ADDRESS}")
-    lines.append(f"[LAST TX HASH]        {last_miner_state['payload'] if last_miner_state else 'NaN'}")
+    lines.append(f"[LAST TX HASH]        {MINING_STATS['last_tx_hash']}")
     lines.append(f"Press Cntrl + C to stop mining")
     
 
