@@ -852,7 +852,8 @@ def main_loop():
         # flush state once a second
         if (refresh_cli_counter == REFRESH_CLI_RATE):
             refresh_cli_counter = 0
-            versobse_stats(last_poll_data,last_problem,last_miner_state)
+            if last_poll_data and last_problem and last_miner_state:
+                versobse_stats(last_poll_data,last_problem,last_miner_state)
             
 
         sleep_to_next_multiple(DEFAULT_MAIN_LOOP_STEP_SECONDS)
