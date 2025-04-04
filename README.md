@@ -35,7 +35,7 @@ There are **three** common ways to build on Linux:
 
 1. **Hardcore:** Bare-metal installation:
 <details>
-<summary>Hardcore version</summary>
+    <summary>Hardcore version</summary>
 
     ```bash
    # Install dependencies, for example on Ubuntu:
@@ -59,13 +59,13 @@ There are **three** common ways to build on Linux:
 
    # mine (but please do some setup first and congrats if this option succeded 🎉)
    python3 mine_infinity.py
-```
+    ```
 
-This will likely produce `magicXorMiner.so`, with high probability.
+    This will likely produce `magicXorMiner.so`, with high probability.
 
-However, there might be platform specific issues.  If experiencing any trouble with installing all of the dependancies -- please consider Docker build. 
+    However, there might be platform specific issues.  If experiencing any trouble with installing all of the dependancies -- please consider Docker build. 
 
-**THIS IS THE HARDCORE BUILD VERSION**
+    **THIS IS THE HARDCORE BUILD VERSION**
 
 </details>
 
