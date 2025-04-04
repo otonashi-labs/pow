@@ -136,13 +136,13 @@ This should produce `magicXorMiner.so.`
 
 **NOTE: This is the only way to launch miner on MacOs. Docker build DOES NOT work on Mac Os.**
 
-### 2.4 Hosting on Vast.ai
+### 1.4 Hosting on Vast.ai
 
 If you don’t have a local GPU, you can deploy your build (or the prebuilt Docker image) onto Vast.ai. While renting a machine with GPU support, upload/pull the container and run the same steps (create your own template there to do that).
 
 ---
 
-## 3. Usage
+## 2. Usage
 1.	Edit `.env.example` with your actual Infinity addresses/keys:
 
 `MASTER_ADDRESS` and `MASTER_PKEY` (the wallet that pays gas and signs solutions).
@@ -162,7 +162,7 @@ Security Warning
 
 ---
 
-## 4. Tweaking / Advanced
+## 3. Tweaking / Advanced
 
 Within `config.py`, you’ll find configuration options:
 

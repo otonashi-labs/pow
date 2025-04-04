@@ -1,19 +1,6 @@
 from config import *
 
 """
-    TODO:
-        Simpler installation guide
-
-        explain more .env logic 
-        AND create simple wallet create & walkthough
-
-        m. refactor folder-wise structure
-        m+1. cleanup readme
-
-        m+2. Maybe add wallet balance increase
-"""
-
-"""
     VALUABLES!!!
 """
 load_dotenv() 
@@ -205,10 +192,30 @@ def get_essential_state_multicall(
             }, "latest"],
         "id":"problem_req"
     }
-        
+
+    balance_req = {
+        "jsonrpc":"2.0",
+        "method":"eth_call",
+        "params":[{
+            "to": INFINITY_ADDRESS,
+            "data": BALANCE_OF_SELECTOR + _ensure_padding(REWARDS_RECIPIENT_ADDRESS), 
+            }, "latest"],
+        "id":"balance_req"
+    }
+
+    sonic_req = {
+        "jsonrpc": "2.0",
+        "method": "eth_getBalance",
+        "params": [
+            master_address,  # Address you're querying
+            "latest"         # Block number, "latest" is most common
+        ],
+        "id": "sonic_req"
+    }
+            
     result = SESSION.post(
         url = INFINITY_RPC,
-        json = [nonce_req, gas_req, problem_req]
+        json = [nonce_req, gas_req, problem_req, balance_req, sonic_req]
     )
     
     if result.status_code != 200:
@@ -233,6 +240,10 @@ def get_essential_state_multicall(
             ret["privateKeyA"] = pkey
             ret["difficulty"] = diff
             ret["problemNonce"] = nonce
+        elif (sub_res["id"] == "balance_req") and ("result" in sub_res):
+            ret["balance"] = int(sub_res["result"], 16) / 10**18
+        elif (sub_res["id"] == "sonic_req") and ("result" in sub_res):
+            ret["sonic_balance"] = int(sub_res["result"], 16) / 10**18
         
     if (ret["master_nonce"] == None) or (ret["eth_feeHistory"] == None) or (ret["privateKeyA"] == None) or (ret["difficulty"] == None) or (ret["problemNonce"] == None):
         return None
@@ -636,7 +647,12 @@ MINING_STATS = {
     "last_epoch" : None,
     "curr_sub_per_epoch" : 0,
     "sub_per_epoch_arr" : [],
-    "last_tx_hash" : None
+    "last_tx_hash" : None,
+    "last_inf_balance_time" : time.time(),
+    "last_inf_balance" : None,
+    "last_inf_speed" : "NaN",
+    "last_sonic_balance" : None,
+    "last_sonic_speed" : "NaN"
 }
 
 def versobse_stats(
@@ -645,6 +661,22 @@ def versobse_stats(
         last_miner_state
     ):
     global MINING_STATS
+
+    if (MINING_STATS["last_inf_balance"] == None) and "balance" in last_poll_data:
+        MINING_STATS["last_inf_balance"] = last_poll_data["balance"]
+
+    if (MINING_STATS["last_sonic_balance"] == None) and "sonic_balance" in last_poll_data:
+        MINING_STATS["last_sonic_balance"] = last_poll_data["sonic_balance"]
+
+    if (time.time() - 60 > MINING_STATS["last_inf_balance_time"]):
+        delta = last_poll_data["balance"] - MINING_STATS["last_inf_balance"]
+        MINING_STATS["last_inf_balance"] = last_poll_data["balance"]
+        MINING_STATS["last_inf_speed"] = f"{delta:.1f}"
+        MINING_STATS["last_inf_balance_time"] = time.time()
+
+        delta_sonic = last_poll_data["sonic_balance"] - MINING_STATS["last_sonic_balance"] 
+        MINING_STATS["last_sonic_balance"] = last_poll_data["sonic_balance"]
+        MINING_STATS["last_sonic_speed"] = f"{delta_sonic:.2f}"
 
     if last_miner_state and last_miner_state["tx_status"] == "OK" and last_miner_state["payload"] != MINING_STATS["last_tx_hash"]:
         MINING_STATS["last_tx_hash"] = last_miner_state["payload"]
@@ -664,30 +696,33 @@ def versobse_stats(
     else:
         avg_share_per_epoc = f'{MINING_STATS["curr_sub_per_epoch"]} sub per epoch'
 
-    sys.stdout.write("\x1b[10A")
+    sys.stdout.write("\x1b[20A")
+    lines = []
 
-    line1 = f"           [STATS at {time.time():.3f}]"
-    line2 = f"[PKEYA] {last_problem['privateKeyA']}"
-    line3 = f"[DIFFICULTY] {last_problem['difficulty']}" 
-    line4 = f"[DIFF-ITER] {_diff_to_iter(last_problem['difficulty'])} steps on average to find solution"
-    line5 = f"[PROBLEM EPOCH] {last_problem['problemNonce']}"
-    line6 = f""
-    line7 = f"            [MINER STATS]"
-    line8 = f"[TX SENT]  {MINING_STATS['tx_ok']}   [EPOCHS ELAPSED]  {MINING_STATS['epochs_elapsed']}  "
-    line9 = f"[CURRENT EPOCH SUB] {MINING_STATS['curr_sub_per_epoch']}    [AVG SUB PER EPOCH] {avg_share_per_epoc}"
-    line10 = f"[LAST TX HASH] {last_miner_state['payload'] if last_miner_state else 'NaN'}"
+    lines.append(f"           [STATS at {time.time():.3f}]")
+    lines.append(f"[PKEYA]             {last_problem['privateKeyA']}")
+    lines.append(f"[DIFFICULTY]        {last_problem['difficulty']}")
+    lines.append(f"[DIFF-ITER]         {_diff_to_iter(last_problem['difficulty'])} steps on average to find solution")
+    lines.append(f"[PROBLEM EPOCH]     {last_problem['problemNonce']}")
+    lines.append(f"")
+    lines.append(f"            [MINER STATS]")
+    lines.append(f"[TX SENT]            {MINING_STATS['tx_ok']}")
+    lines.append(f"[EPOCHS ELAPSED]     {MINING_STATS['epochs_elapsed']}")
+    lines.append(f"[CURRENT EPOCH SUB]  {MINING_STATS['curr_sub_per_epoch']}")
+    lines.append(f"[AVG SUB PER EPOCH]  {avg_share_per_epoc}")
+    lines.append(f"[INF BALANCE]        {last_poll_data['balance']:.0f} tokens")
+    lines.append(f"[MINING SPEED]       {MINING_STATS['last_inf_speed']} tokens per min")
+    lines.append(f"[S BALANCE]          {last_poll_data['sonic_balance']:.2f} S")
+    lines.append(f"[S SPEND SPEED]      {MINING_STATS['last_sonic_speed']} Sonic per min")
+    lines.append(f"")
+    lines.append(f"[MINER ADDRESS]       {MASTER_ADDRESS}")
+    lines.append(f"[REWARDS ADDRESS]     {REWARDS_RECIPIENT_ADDRESS}")
+    lines.append(f"[LAST TX HASH]        {last_miner_state['payload'] if last_miner_state else 'NaN'}")
+    lines.append(f"Press Cntrl + C to stop")
     
 
-    print(line1)
-    print(line2)
-    print(line3)
-    print(line4)
-    print(line5)
-    print(line6)
-    print(line7)
-    print(line8)
-    print(line9)
-    print(line10)
+    for line in lines:
+        print(line)
 
     sys.stdout.flush()
 
@@ -726,7 +761,7 @@ def main_loop():
     refresh_cli_counter = 0
 
     # for cli refreshing stats
-    for _ in range(10):
+    for _ in range(20):
         print()
 
     if (MINER_VERBOSE_FLAG):
