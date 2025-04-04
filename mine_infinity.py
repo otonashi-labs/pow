@@ -855,7 +855,7 @@ def main_loop():
             versobse_stats(last_poll_data,last_problem,last_miner_state)
             
 
-        sleep_to_next_multiple(0.005)
+        sleep_to_next_multiple(DEFAULT_MAIN_LOOP_STEP_SECONDS)
         
 
 """
@@ -875,7 +875,7 @@ if __name__ == "__main__":
 
     poll_thread = threading.Thread(
         target=poll_state_periodically,
-        args=(0.5,),  # poll every 0.5s
+        args=(DEFAULT_POLL_INTERVAL_SECONDS,),  # poll every 0.3s
         daemon=True
     )
     poll_thread.start()

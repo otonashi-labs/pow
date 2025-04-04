@@ -305,6 +305,10 @@ SESSION_UPATE_STEPS = 1_800
     Comand Line stats will be updated once every 500ms
 """
 REFRESH_CLI_RATE = 100
+
+DEFAULT_POLL_INTERVAL_SECONDS = 0.3 # 300 ms
+DEFAULT_MAIN_LOOP_STEP_SECONDS = 0.005 # 5ms
+
 ```
 </details>
 
