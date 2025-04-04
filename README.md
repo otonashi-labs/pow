@@ -61,11 +61,11 @@ There are **three** common ways to build on Linux:
    python3 mine_infinity.py
 ```
 
-    This will likely produce `magicXorMiner.so`, with high probability.
+This will likely produce `magicXorMiner.so`, with high probability.
 
-    However, there might be platform specific issues.  If experiencing any trouble with installing all of the dependancies -- please consider Docker build. 
+However, there might be platform specific issues.  If experiencing any trouble with installing all of the dependancies -- please consider Docker build. 
 
-    **THIS IS THE HARDCORE BUILD VERSION**
+**THIS IS THE HARDCORE BUILD VERSION**
 
 </details>
 
