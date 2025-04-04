@@ -59,11 +59,11 @@ Inside the container you’ll find the compiled `magicXorMiner.so` in /app.
 
 #### 2. **Simplest Possible:** Pull prebuilt container from Docker Hub:
 ```bash
-    docker pull otonashilabs/infinity-miner
+    docker pull otonashilabs/infinity-miner:latest
 ```
 Then run:
 ```bash
-    docker run --gpus all -it otonashilabs/infinity-miner /bin/bash
+    docker run --gpus all -it otonashilabs/infinity-miner:latest /bin/bash
 
     cd /app
 
