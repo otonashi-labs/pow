@@ -7,13 +7,8 @@ from config import *
         explain more .env logic 
         AND create simple wallet create & walkthough
 
-        5. Mac Os build with script identifying LD FLAGS, etc. And installing dependencies (possibly) [POSTPONED] 
-        n. simple onboarding flow [POSTPONED]
-        n+1. simple testing flow [done]
-        n+2. all changes --> explain them in readme [WIP]
-
-        ADD WALLET STATS
-
+        m. refactor structure
+        m+1. cleanup readme
 """
 
 """
@@ -695,6 +690,9 @@ def versobse_stats(
     sys.stdout.flush()
 
 
+def clean_opencl_cache():
+    os.system("rm -f cache-opencl.255.*")
+
 """
     Main Loop
     Every 5ms:
@@ -770,9 +768,11 @@ def main_loop():
                     actually_latest_pkey = last_poll_data["privateKeyA"]
                     last_problem["privateKeyA"] = last_poll_data["privateKeyA"]
                     last_problem["problemNonce"] = last_poll_data["problemNonce"]
+                    last_problem["difficulty"] = last_poll_data["difficulty"]
                 else:
                     last_poll_data["privateKeyA"] = last_problem["privateKeyA"]
                     last_poll_data["problemNonce"] = last_problem["problemNonce"]
+                    last_poll_data["difficulty"] = last_problem["difficulty"]
         """
             Check on our mate - miner
         """
@@ -830,6 +830,7 @@ def main_loop():
     3) main loop managing them all (and launching miner)
 """
 if __name__ == "__main__":
+    clean_opencl_cache()
     ws_thread = threading.Thread(
         target=listen_for_problems,
         args=(INFINITY_WS, POW_CONTRACT, POW_NEW_PROBLEM_TOPIC0),
