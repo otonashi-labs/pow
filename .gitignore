@@ -4,4 +4,4 @@
 cache-opencl.*
 bin
 .DS_Store
-__pecache__
+__pycache__
