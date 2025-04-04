@@ -34,10 +34,10 @@ This miner is a heavily optimized software, hence it is quite picky dependencies
 #### 1. **Recommended:** Build with Docker, using the provided Dockerfile:
 ```bash
     # build
-    docker build -t infinity-gpu-miner .
+    docker build -t infinity-miner .
     
     # Then run with GPU passthrough (e.g. NVIDIA Docker setup):
-    docker run --gpus all -it infinity-gpu-miner /bin/bash
+    docker run --gpus all -it infinity-miner /bin/bash
 
     # all repository files will be already there
     cd /app
@@ -59,11 +59,11 @@ Inside the container you’ll find the compiled `magicXorMiner.so` in /app.
 
 #### 2. **Simplest Possible:** Pull prebuilt container from Docker Hub:
 ```bash
-    docker pull devoak/magic-xor-miner:nvidia-latest
+    docker pull otonashilabs/infinity-miner
 ```
 Then run:
 ```bash
-    docker run --gpus all -it devoak/magic-xor-miner:nvidia-latest-stats /bin/bash
+    docker run --gpus all -it otonashilabs/infinity-miner /bin/bash
 
     cd /app
 
