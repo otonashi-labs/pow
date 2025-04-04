@@ -31,7 +31,7 @@ This miner is a heavily optimized software, hence it is quite picky dependencies
 
 ### 1.1 Linux Build
 
-1. **Recommended:** Build with Docker, using the provided Dockerfile:
+#### 1. **Recommended:** Build with Docker, using the provided Dockerfile:
 ```bash
     # build
     docker build -t infinity-gpu-miner .
@@ -57,7 +57,7 @@ This miner is a heavily optimized software, hence it is quite picky dependencies
 
 Inside the container you’ll find the compiled `magicXorMiner.so` in /app.
 
-2. **Simplest Possible:** Pull prebuilt container from Docker Hub:
+#### 2. **Simplest Possible:** Pull prebuilt container from Docker Hub:
 ```bash
     docker pull devoak/magic-xor-miner:nvidia-latest
 ```
@@ -84,7 +84,7 @@ The container already includes everything needed.
 
 **NOTE: Ensure your Docker runtime and driver stack are set up to allow GPU access.**
 
-3. **Hardcore:** Bare-metal installation:
+#### 3. **Hardcore:** Bare-metal installation:
 <details>
     <summary>Hardcore version</summary>
 
@@ -204,26 +204,73 @@ Security Warning
 
 ## 3. Tweaking / Advanced
 
-Within `config.py`, you’ll find configuration options:
+<details>
+    <summary>Tweaking</summary>
+
+Within `config.py`, you’ll find the following configuration options:
+
+Feel free to tune them! But make sure you know what you are doing.
 
 ```python
-# You can provide custom data for the signature (EIP-191)
-SIGN_DATA = bytes.fromhex("deadbeef1337cafebabe")  # Must be ≤ 32 bytes
+"""
+    be creative, pick your own data, don't make it too long though,
+    code will compulsory fail if len(SIGN_DATA) > 32, so keep that in mind
+"""
+SIGN_DATA = bytes.fromhex("deadbeef1337cafebabe")
 
-# [TX-BUILDER] - Gas fees
-# You can create your own strategy for gas fees!
+"""
+    [TX-BUILDER] feel free to tune it
+    or build a script to tune it
+"""
 MAX_PRIORITY_FEE_MWEI = 500
 BASE_FEE_K = 2
 
-# [MINER] - Profanity2-like GPU tuning
-# Experiment with these values to find the optimal hashrate for your hardware.
-WORKSIZE_LOCAL = 64               # OpenCL local work size
-WORKSIZE_MAX = 0                  # 0 => default = INVERSE_SIZE * INVERSE_MULTIPLE
-INVERSE_SIZE = 255                # how many modular inversions per work item
-INVERSE_MULTIPLE = 1024           # how many parallel items to run
-PROFANITY2_VERBOSE_FLAG = False   # do you want profanity2 working logs?
-MINER_VERBOSE_FLAG = True         # don't toggle these both to True -- they will mix, one at a time please
+"""
+    [MINER] Mining params section:
+    feel free to tweak this parameters until it works the best for you
+    original profanity2 params are mirrored here: https://github.com/1inch/profanity2
+
+Tweaking:
+    WORKSIZE_LOCAL      Set OpenCL local work size. [default = 64]
+    WORKSIZE_MAX        Set OpenCL maximum work size. [default = -i * -I]
+    INVERSE_SIZE        Set size of modular inverses to calculate in one work item. [default = 255]
+    INVERSE_MULTIPLE    Set how many above work items will run in parallell. [default = 16384]
+
+Note:
+    My own strategy is modifying INVERSE_MULTIPLE while keeping other parameters default
+    For Apple Silicon expect something like 1024 to be an optimal INVERSE_MULTIPLE size
+
+    For NVIDIA GPU -- 16384 will be a great option
+
+    Keep in mind that this number HAS TO BE a power of 2 (1024, 2048, 4096, etc)
+"""
+WORKSIZE_LOCAL = 64
+WORKSIZE_MAX = 0  # 0 means default
+INVERSE_SIZE = 255
+INVERSE_MULTIPLE = 1024 
+
+"""
+    Should program output anything in std::out ?
+"""
+PROFANITY2_VERBOSE_FLAG = False  # do you want profanity2 working logs?
+MINER_VERBOSE_FLAG = True # don't toggle these both to True -- they will mix, one at a time please
+
+
+"""
+    500 ms polling loop step 
+    15 min --> 720_000 steps
+    POLLING session will be updated once every 15 min
+"""
+SESSION_UPATE_STEPS = 1_800 
+
+"""
+    5 ms main loop step 
+    1 s --> 200 steps
+    Comand Line stats will be updated once every 500ms
+"""
+REFRESH_CLI_RATE = 100
 ```
+</details>
 
 ---
 
