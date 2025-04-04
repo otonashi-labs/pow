@@ -7,8 +7,10 @@ from config import *
         explain more .env logic 
         AND create simple wallet create & walkthough
 
-        m. refactor structure
+        m. refactor folder-wise structure
         m+1. cleanup readme
+
+        m+2. Maybe add wallet balance increase
 """
 
 """
