@@ -93,7 +93,7 @@ The container already includes everything needed.
    sudo apt-get update && sudo apt-get install -y \
     g++ make git ocl-icd-opencl-dev libopencl-clang-dev curl python3 python3-pip clinfo nano
 
-    # Install Python packages for Python 3.10
+    # Install Python packages for Python
    pip3 install pybind11 safe-pysha3 ecdsa web3 coincurve websocket-client websockets dotenv 
 
    # Clone and build:
@@ -131,8 +131,44 @@ However, there might be platform specific issues.  If experiencing any trouble w
 
 macOS support is tested primarily on Apple Silicon (M1/M2). Adjust paths and frameworks for your environment.
 
+<details>
+    <summary>Mac OS OpenCL support</summary>
+
+Installing OpenCL on a Mac with an Apple Silicon chip is a little different because Apple has deprecated OpenCL in favor of Metal. But OpenCL is still available on macOS, including on Apple Silicon (M1/M2/M3), just not actively developed
+
+✅ 1. Xcode Command Line Tools (includes OpenCL)
+
+Most macOS systems already have OpenCL support via system frameworks. All you really need is:
+```bash
+    xcode-select --install
+```
+This installs the command line developer tools, which include OpenCL headers and libraries in the system frameworks.
+
+✅ 2. Check for OpenCL Framework
+
+You can verify it’s available here:
+```bash
+    /System/Library/Frameworks/OpenCL.framework
+```
+
+Also:
+```bash
+    brew install clinfo
+    clinfo
+```
+
+This will show you your OpenCL device stats. If it's working - you are good to go
+
+</details>
+
 To build:
 ```bash
+    # install dependancies (uncomment on need) ideally install only the things that you need
+    # brew install g++ make git curl python3 python3-pip clinfo nano
+
+    # Install Python packages for Python (uncomment on need)
+    # pip3 install pybind11 safe-pysha3 ecdsa web3 coincurve websocket-client websockets dotenv 
+
     git clone https://github.com/otonashi-labs/pow.git
     cd pow
     chmod +x build_mac.sh
