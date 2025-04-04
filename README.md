@@ -37,7 +37,7 @@ There are **three** common ways to build on Linux:
 <details>
     <summary>Hardcore version</summary>
 
-    ```bash
+```bash
    # Install dependencies, for example on Ubuntu:
    sudo apt-get update && sudo apt-get install -y \
     g++ make git ocl-icd-opencl-dev libopencl-clang-dev curl python3 python3-pip clinfo nano
@@ -59,7 +59,7 @@ There are **three** common ways to build on Linux:
 
    # mine (but please do some setup first and congrats if this option succeded 🎉)
    python3 mine_infinity.py
-    ```
+```
 
     This will likely produce `magicXorMiner.so`, with high probability.
 
