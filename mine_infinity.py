@@ -660,10 +660,10 @@ def versobse_stats(
     ):
     global MINING_STATS
 
-    if (MINING_STATS["last_inf_balance"] == None) and "balance" in last_poll_data:
+    if (MINING_STATS["last_inf_balance"] == None) and last_poll_data and ("balance" in last_poll_data):
         MINING_STATS["last_inf_balance"] = last_poll_data["balance"]
 
-    if (MINING_STATS["last_sonic_balance"] == None) and "sonic_balance" in last_poll_data:
+    if (MINING_STATS["last_sonic_balance"] == None) and last_poll_data and ("sonic_balance" in last_poll_data):
         MINING_STATS["last_sonic_balance"] = last_poll_data["sonic_balance"]
 
     if (time.time() - 60 > MINING_STATS["last_inf_balance_time"]):
