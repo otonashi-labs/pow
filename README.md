@@ -324,4 +324,4 @@ Enjoy mining Infinity — and if you discover improvements or have questions, fe
 
 ## 4. Contributors
 
-This programm has been created by Otonashi Labs
+This software has been created by Otonashi Labs
