@@ -321,3 +321,7 @@ License & Credits
 
 Enjoy mining Infinity — and if you discover improvements or have questions, feel free to open an issue or a pull request.
 
+
+## 4. Contributors
+
+This programm has been created by Otonashi Labs
