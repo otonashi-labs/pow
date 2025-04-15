@@ -314,14 +314,12 @@ DEFAULT_MAIN_LOOP_STEP_SECONDS = 0.005 # 5ms
 
 ---
 
+## 4. License & Credits
+
+**This software has been created by Otonashi Labs**
+
 License & Credits
 - This tool is adapted from 1inch/profanity2, all related disclaimers apply.
 - No warranties. Use responsibly. Infinity GPU Miner authors are not liable for any damages or losses.
 
-
 Enjoy mining Infinity — and if you discover improvements or have questions, feel free to open an issue or a pull request.
-
-
-## 4. Contributors
-
-This software has been created by Otonashi Labs
